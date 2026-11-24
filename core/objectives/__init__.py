@@ -1,0 +1,1 @@
+"""AutoShift objectives package."""

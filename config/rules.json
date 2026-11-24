@@ -1,0 +1,62 @@
+{
+  "version": "1.0",
+  "shifts": { "1": "Ca đêm", "2": "Ca sáng", "3": "Ca chiều" },
+  "staff_per_shift": {
+    "1": { "min": 3, "preferred": 4, "max": 4 },
+    "2": { "min": 3, "preferred": 4, "max": 4 },
+    "3": { "min": 3, "preferred": 4, "max": 4 }
+  },
+  "min_leaders_per_shift": 1,
+  "min_previous_day_staff": 1,
+  "max_shifts_per_day": 1,
+  "max_consecutive_night_shifts": 2,
+  "max_consecutive_shift_days": 5,
+  "min_rest_hours": 8,
+  "shift_hours": {
+    "1": { "start": "22:00", "end": "06:00", "start_day_offset": -1 },
+    "2": { "start": "06:00", "end": "14:00", "start_day_offset": 0 },
+    "3": { "start": "14:00", "end": "22:00", "start_day_offset": 0 }
+  },
+  "forbidden_transitions": [[3, 1]],
+  "work_credit": {
+    "1": 1,
+    "2": 1,
+    "3": 1,
+    "CT": 1,
+    "DT": 1,
+    "BKD": 0,
+    "T": 1,
+    "OFF": 0
+  },
+  "admin_support": {
+    "enabled": true,
+    "allowed_shifts": [2, 3],
+    "allow_weekend": false,
+    "allow_holiday": false,
+    "max_shifts_per_person": null
+  },
+  "optimization": {
+    "balance_shift_types": true,
+    "balance_night_shifts": true,
+    "balance_weekend_shifts": true,
+    "balance_holiday_shifts": true,
+    "balance_rest_days": true,
+    "minimize_shift_changes": true,
+    "prefer_staffing": true,
+    "honor_preferences": true,
+    "minimize_admin_support": true,
+    "balance_admin_support": true,
+    "minimize_schedule_changes": true
+  },
+  "credit_policy": {
+    "mode": "DEMAND_BASED",
+
+    "demand_staff_per_shift": {
+      "1": 3,
+      "2": 3,
+      "3": 3
+    },
+
+    "daily_demand": {}
+  }
+}

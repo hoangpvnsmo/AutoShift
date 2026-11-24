@@ -1,0 +1,7 @@
+{
+  "shift_hours": {
+    "1": {"start": "22:00", "end": "06:00", "start_day_offset": -1},
+    "2": {"start": "06:00", "end": "14:00", "start_day_offset": 0},
+    "3": {"start": "14:00", "end": "22:00", "start_day_offset": 0}
+  }
+}

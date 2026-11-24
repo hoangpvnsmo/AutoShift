@@ -1,0 +1,258 @@
+test_local_infeasible_not_proof (test_adaptive.AdaptiveModelTests.test_local_infeasible_not_proof) ... skipped 'OR-Tools chưa cài'
+test_reach_bound_and_lock (test_adaptive.AdaptiveModelTests.test_reach_bound_and_lock) ... skipped 'OR-Tools chưa cài'
+test_explore_each (test_adaptive.PolicyTests.test_explore_each) ... ok
+test_extend_budget_and_reserve (test_adaptive.PolicyTests.test_extend_budget_and_reserve) ... ok
+test_hash_migration_exact (test_adaptive.PolicyTests.test_hash_migration_exact) ... ok
+test_high_fraction_capped (test_adaptive.PolicyTests.test_high_fraction_capped) ... ok
+test_improve_resets_stall_and_lex (test_adaptive.PolicyTests.test_improve_resets_stall_and_lex) ... ok
+test_no_target (test_adaptive.PolicyTests.test_no_target) ... ok
+test_remaining_and_invalid (test_adaptive.PolicyTests.test_remaining_and_invalid) ... ok
+test_stall (test_adaptive.PolicyTests.test_stall) ... ok
+test_weight_prefers_productive (test_adaptive.PolicyTests.test_weight_prefers_productive) ... ok
+test_widen_and_mode (test_adaptive.PolicyTests.test_widen_and_mode) ... ok
+test_admin_t_replaced (test_admin.AdminChecksTests.test_admin_t_replaced) ... ok
+test_allowed_days_shifts (test_admin.AdminChecksTests.test_allowed_days_shifts) ... ok
+test_cap_and_fixed_request (test_admin.AdminChecksTests.test_cap_and_fixed_request) ... ok
+test_disabled (test_admin.AdminChecksTests.test_disabled) ... ok
+test_fixed_admin_holiday_disabled (test_admin.AdminChecksTests.test_fixed_admin_holiday_disabled) ... ok
+test_holiday_credit (test_admin.AdminChecksTests.test_holiday_credit) ... ok
+test_holiday_toggle (test_admin.AdminChecksTests.test_holiday_toggle) ... ok
+test_invalid_config (test_admin.AdminChecksTests.test_invalid_config) ... ok
+test_special_codes_override_t (test_admin.AdminChecksTests.test_special_codes_override_t) ... ok
+test_validator_illegal_admin (test_admin.AdminChecksTests.test_validator_illegal_admin) ... ok
+test_admin_disabled_even_if_excess (test_admin.AdminSolverTests.test_admin_disabled_even_if_excess) ... skipped 'Thiếu OR-Tools'
+test_admin_reduces_excess (test_admin.AdminSolverTests.test_admin_reduces_excess) ... skipped 'Thiếu OR-Tools'
+test_fixed_admin (test_admin.AdminSolverTests.test_fixed_admin) ... skipped 'Thiếu OR-Tools'
+test_integration_sample (test_admin.AdminSolverTests.test_integration_sample) ... skipped 'Thiếu OR-Tools'
+test_no_admin_when_no_excess (test_admin.AdminSolverTests.test_no_admin_when_no_excess) ... skipped 'Thiếu OR-Tools'
+test_support_if_staffing_impossible_without_admin (test_admin.AdminSolverTests.test_support_if_staffing_impossible_without_admin) ... skipped 'Thiếu OR-Tools'
+test_changed_hard (test_checkpoint.CheckpointTests.test_changed_hard) ... ok
+test_changed_source (test_checkpoint.CheckpointTests.test_changed_source) ... ok
+test_corrupt (test_checkpoint.CheckpointTests.test_corrupt) ... ok
+test_pref_only (test_checkpoint.CheckpointTests.test_pref_only) ... ok
+test_prefix (test_checkpoint.CheckpointTests.test_prefix) ... ok
+test_priority (test_checkpoint.CheckpointTests.test_priority) ... ok
+test_replace (test_checkpoint.CheckpointTests.test_replace) ... ok
+test_roundtrip (test_checkpoint.CheckpointTests.test_roundtrip) ... ok
+test_same_input (test_checkpoint.CheckpointTests.test_same_input) ... ok
+test_scenario_isolation (test_checkpoint.CheckpointTests.test_scenario_isolation) ... ok
+test_score_mismatch (test_checkpoint.CheckpointTests.test_score_mismatch) ... ok
+test_fixed_model_valid_and_invalid (test_checkpoint.ModelTests.test_fixed_model_valid_and_invalid) ... skipped 'OR-Tools chưa cài'
+test_resume_proven_prefix_and_changed_preferences (test_checkpoint.ModelTests.test_resume_proven_prefix_and_changed_preferences) ... skipped 'OR-Tools chưa cài'
+test_tie_preserves_best (test_checkpoint.ModelTests.test_tie_preserves_best) ... skipped 'OR-Tools chưa cài'
+test_actual_checkpoint_and_scores (test_clean_release.CleanReleaseTests.test_actual_checkpoint_and_scores) ... ok
+test_change_hard_data_invalidates_proof (test_clean_release.CleanReleaseTests.test_change_hard_data_invalidates_proof) ... ok
+test_change_soft_data_preserves_base_migration (test_clean_release.CleanReleaseTests.test_change_soft_data_preserves_base_migration) ... ok
+test_nested_source_change_blocks_migration (test_clean_release.CleanReleaseTests.test_nested_source_change_blocks_migration) ... ok
+test_no_old_cli (test_clean_release.CleanReleaseTests.test_no_old_cli) ... ok
+test_configurable_minimum (test_continuity.ContinuityTests.test_configurable_minimum) ... skipped 'Thiếu OR-Tools; cần cài requirements.txt.'
+test_cross_shift_is_allowed (test_continuity.ContinuityTests.test_cross_shift_is_allowed) ... skipped 'Thiếu OR-Tools; cần cài requirements.txt.'
+test_disjoint_allowed_without_A07 (test_continuity.ContinuityTests.test_disjoint_allowed_without_A07) ... skipped 'Thiếu OR-Tools; cần cài requirements.txt.'
+test_first_day_no_prior_staff (test_continuity.ContinuityTests.test_first_day_no_prior_staff) ... skipped 'Thiếu OR-Tools; cần cài requirements.txt.'
+test_first_day_non_shift_history_not_counted (test_continuity.ContinuityTests.test_first_day_non_shift_history_not_counted) ... skipped 'Thiếu OR-Tools; cần cài requirements.txt.'
+test_invalid_minimum_rejected (test_continuity.ContinuityTests.test_invalid_minimum_rejected) ... skipped 'Thiếu OR-Tools; cần cài requirements.txt.'
+test_missing_history_rejected (test_continuity.ContinuityTests.test_missing_history_rejected) ... skipped 'Thiếu OR-Tools; cần cài requirements.txt.'
+test_second_day_disjoint (test_continuity.ContinuityTests.test_second_day_disjoint) ... skipped 'Thiếu OR-Tools; cần cài requirements.txt.'
+test_valid_month_including_boundary (test_continuity.ContinuityTests.test_valid_month_including_boundary) ... skipped 'Thiếu OR-Tools; cần cài requirements.txt.'
+test_T_not_allowed (test_credits.CreditChecksTests.test_T_not_allowed) ... ok
+test_credit_and_requests (test_credits.CreditChecksTests.test_credit_and_requests) ... ok
+test_custom_demand (test_credits.CreditChecksTests.test_custom_demand) ... ok
+test_daily_outside_month (test_credits.CreditChecksTests.test_daily_outside_month) ... ok
+test_default_demand_not_preferred (test_credits.CreditChecksTests.test_default_demand_not_preferred) ... ok
+test_duplicate_request (test_credits.CreditChecksTests.test_duplicate_request) ... ok
+test_excess (test_credits.CreditChecksTests.test_excess) ... ok
+test_fixed_and_nonshift_violations (test_credits.CreditChecksTests.test_fixed_and_nonshift_violations) ... ok
+test_invalid_credit_mapping (test_credits.CreditChecksTests.test_invalid_credit_mapping) ... ok
+test_invalid_demand (test_credits.CreditChecksTests.test_invalid_demand) ... ok
+test_admin_fixed_shift_blocked (test_credits.CreditSolverTests.test_admin_fixed_shift_blocked) ... skipped 'Thiếu OR-Tools'
+test_demand_and_objective (test_credits.CreditSolverTests.test_demand_and_objective) ... skipped 'Thiếu OR-Tools'
+test_fixed_requests (test_credits.CreditSolverTests.test_fixed_requests) ... skipped 'Thiếu OR-Tools'
+test_fixed_shift_must_hold (test_credits.CreditSolverTests.test_fixed_shift_must_hold) ... skipped 'Thiếu OR-Tools'
+test_forbidden_request (test_credits.CreditSolverTests.test_forbidden_request) ... skipped 'Thiếu OR-Tools'
+test_integration_sample (test_credits.CreditSolverTests.test_integration_sample) ... skipped 'Thiếu OR-Tools'
+test_holiday_priority_and_weekend_improve (test_day_balance.DaySolverTests.test_holiday_priority_and_weekend_improve) ... skipped 'Thiếu OR-Tools'
+test_integration_sample_holidays (test_day_balance.DaySolverTests.test_integration_sample_holidays) ... skipped 'Thiếu OR-Tools'
+test_skip_still_locks (test_day_balance.DaySolverTests.test_skip_still_locks) ... skipped 'Thiếu OR-Tools'
+test_timeout_fallback (test_day_balance.DaySolverTests.test_timeout_fallback) ... skipped 'Thiếu OR-Tools'
+test_calendar (test_day_balance.DayTests.test_calendar) ... ok
+test_count_shift_only_and_admin_excluded (test_day_balance.DayTests.test_count_shift_only_and_admin_excluded) ... ok
+test_e01_choose_high_person (test_day_balance.DayTests.test_e01_choose_high_person) ... ok
+test_e01_mixed_rights_and_ct (test_day_balance.DayTests.test_e01_mixed_rights_and_ct) ... ok
+test_e01_sample (test_day_balance.DayTests.test_e01_sample) ... ok
+test_e01_wide_spread_safe (test_day_balance.DayTests.test_e01_wide_spread_safe) ... ok
+test_holiday_admin_variable_total (test_day_balance.DayTests.test_holiday_admin_variable_total) ... ok
+test_holiday_bound_no_admin (test_day_balance.DayTests.test_holiday_bound_no_admin) ... ok
+test_no_days (test_day_balance.DayTests.test_no_days) ... ok
+test_overlap (test_day_balance.DayTests.test_overlap) ... ok
+test_weekend_bound (test_day_balance.DayTests.test_weekend_bound) ... ok
+test_admin_allowed_but_not_used (test_day_balance_v2.BoundTests.test_admin_allowed_but_not_used) ... ok
+test_no_days (test_day_balance_v2.BoundTests.test_no_days) ... ok
+test_nonconsecutive (test_day_balance_v2.BoundTests.test_nonconsecutive) ... ok
+test_old_and_new (test_day_balance_v2.BoundTests.test_old_and_new) ... ok
+test_overlap_holiday_weekend (test_day_balance_v2.BoundTests.test_overlap_holiday_weekend) ... ok
+test_sample_consecutive (test_day_balance_v2.BoundTests.test_sample_consecutive) ... ok
+test_single (test_day_balance_v2.BoundTests.test_single) ... ok
+test_support_relaxation_exhaustive (test_day_balance_v2.BoundTests.test_support_relaxation_exhaustive) ... ok
+test_variable_admin (test_day_balance_v2.BoundTests.test_variable_admin) ... ok
+test_weekend (test_day_balance_v2.BoundTests.test_weekend) ... ok
+test_infeasible_trial_no_leak (test_day_balance_v2.SolverTests.test_infeasible_trial_no_leak) ... skipped 'Thiếu OR-Tools'
+test_integration (test_day_balance_v2.SolverTests.test_integration) ... skipped 'Thiếu OR-Tools'
+test_timeout_keeps_incumbent (test_day_balance_v2.SolverTests.test_timeout_keeps_incumbent) ... skipped 'Thiếu OR-Tools'
+test_trial_and_lock (test_day_balance_v2.SolverTests.test_trial_and_lock) ... skipped 'Thiếu OR-Tools'
+test_builder_unchanged (test_engine.ConfigTests.test_builder_unchanged) ... ok
+test_cli_params (test_engine.ConfigTests.test_cli_params) ... ok
+test_modes (test_engine.ConfigTests.test_modes) ... ok
+test_options_validation (test_engine.ConfigTests.test_options_validation) ... ok
+test_stage_order_and_budget (test_engine.ConfigTests.test_stage_order_and_budget) ... ok
+test_model_parity (test_engine.IntegrationTests.test_model_parity) ... skipped 'Thiếu OR-Tools'
+test_resume_and_changed_preferences (test_engine.IntegrationTests.test_resume_and_changed_preferences) ... skipped 'Thiếu OR-Tools'
+test_exact_historical_hash (test_engine.PersistenceTests.test_exact_historical_hash) ... ok
+test_hard_changed_no_proof (test_engine.PersistenceTests.test_hard_changed_no_proof) ... ok
+test_migrate_three_versions (test_engine.PersistenceTests.test_migrate_three_versions) ... ok
+test_modified_new_engine_no_migration (test_engine.PersistenceTests.test_modified_new_engine_no_migration) ... ok
+test_modified_old_source_no_migration (test_engine.PersistenceTests.test_modified_old_source_no_migration) ... ok
+test_preferences_changed (test_engine.PersistenceTests.test_preferences_changed) ... ok
+test_priority_protection (test_engine.PersistenceTests.test_priority_protection) ... ok
+test_retain_proof_on_equal (test_engine.PersistenceTests.test_retain_proof_on_equal) ... ok
+test_full_report (test_engine.ReportTests.test_full_report) ... ok
+test_reject_invalid_schedule (test_engine.ReportTests.test_reject_invalid_schedule) ... ok
+test_reject_wrong_score (test_engine.ReportTests.test_reject_wrong_score) ... ok
+test_credit (test_input.InputTests.test_credit) ... ok
+test_credit_codes (test_input.InputTests.test_credit_codes) ... ok
+test_groups (test_input.InputTests.test_groups) ... ok
+test_history (test_input.InputTests.test_history) ... ok
+test_warning (test_input.InputTests.test_warning) ... ok
+test_clone_freeze (test_lns.ModelTests.test_clone_freeze) ... skipped 'OR-Tools chưa cài'
+test_lns_proven_bound_and_lock (test_lns.ModelTests.test_lns_proven_bound_and_lock) ... skipped 'OR-Tools chưa cài'
+test_local_infeasible_not_global_proof (test_lns.ModelTests.test_local_infeasible_not_global_proof) ... skipped 'OR-Tools chưa cài'
+test_legacy_exact_hash (test_lns.NeighborhoodTests.test_legacy_exact_hash) ... ok
+test_legacy_hard_change (test_lns.NeighborhoodTests.test_legacy_hard_change) ... ok
+test_no_outside (test_lns.NeighborhoodTests.test_no_outside) ... ok
+test_rotation_boundary (test_lns.NeighborhoodTests.test_rotation_boundary) ... ok
+test_seed (test_lns.NeighborhoodTests.test_seed) ... ok
+test_single_and_empty (test_lns.NeighborhoodTests.test_single_and_empty) ... ok
+test_staff_neighborhood (test_lns.NeighborhoodTests.test_staff_neighborhood) ... ok
+test_target_contains_focus (test_lns.NeighborhoodTests.test_target_contains_focus) ... ok
+test_time_window (test_lns.NeighborhoodTests.test_time_window) ... ok
+test_widen (test_lns.NeighborhoodTests.test_widen) ... ok
+test_no_shift (test_model_builder.ModelBuilderTests.test_no_shift) ... skipped 'Thiếu OR-Tools; cài requirements.txt để chạy kiểm thử solver.'
+test_one_shift (test_model_builder.ModelBuilderTests.test_one_shift) ... skipped 'Thiếu OR-Tools; cài requirements.txt để chạy kiểm thử solver.'
+test_two_shifts_forbidden (test_model_builder.ModelBuilderTests.test_two_shifts_forbidden) ... skipped 'Thiếu OR-Tools; cài requirements.txt để chạy kiểm thử solver.'
+test_variable_counts (test_model_builder.ModelBuilderTests.test_variable_counts) ... skipped 'Thiếu OR-Tools; cài requirements.txt để chạy kiểm thử solver.'
+test_counts_only_night (test_night_balance.NightCheckTests.test_counts_only_night) ... ok
+test_divisible_bound (test_night_balance.NightCheckTests.test_divisible_bound) ... ok
+test_group_scores (test_night_balance.NightCheckTests.test_group_scores) ... ok
+test_groups (test_night_balance.NightCheckTests.test_groups) ... ok
+test_multiple_groups_bound (test_night_balance.NightCheckTests.test_multiple_groups_bound) ... ok
+test_same_e01_different_e02 (test_night_balance.NightCheckTests.test_same_e01_different_e02) ... ok
+test_sample_lower_bound (test_night_balance.NightCheckTests.test_sample_lower_bound) ... ok
+test_zero_groups (test_night_balance.NightCheckTests.test_zero_groups) ... ok
+test_e02_improves_same_e01 (test_night_balance.NightSolverTests.test_e02_improves_same_e01) ... skipped 'Thiếu OR-Tools'
+test_forced_imbalance_soft (test_night_balance.NightSolverTests.test_forced_imbalance_soft) ... skipped 'Thiếu OR-Tools'
+test_integration_two_scenarios (test_night_balance.NightSolverTests.test_integration_two_scenarios) ... skipped 'Thiếu OR-Tools'
+test_no_groups (test_night_balance.NightSolverTests.test_no_groups) ... skipped 'Thiếu OR-Tools'
+test_refine_timeout (test_night_balance.NightSolverTests.test_refine_timeout) ... skipped 'Thiếu OR-Tools'
+test_admin_off_not_t (test_preferences.PreferenceTests.test_admin_off_not_t) ... ok
+test_demo (test_preferences.PreferenceTests.test_demo) ... ok
+test_duplicate (test_preferences.PreferenceTests.test_duplicate) ... ok
+test_hard_conflicts (test_preferences.PreferenceTests.test_hard_conflicts) ... ok
+test_invalid (test_preferences.PreferenceTests.test_invalid) ... ok
+test_optional_sheet (test_preferences.PreferenceTests.test_optional_sheet) ... ok
+test_read_sheet (test_preferences.PreferenceTests.test_read_sheet) ... ok
+test_semantics (test_preferences.PreferenceTests.test_semantics) ... ok
+test_weighted (test_preferences.PreferenceTests.test_weighted) ... ok
+test_lock_previous_score (test_preferences.SolverTests.test_lock_previous_score) ... skipped 'Thiếu OR-Tools'
+test_model_score (test_preferences.SolverTests.test_model_score) ... skipped 'Thiếu OR-Tools'
+test_equal (test_quality.QualityChecksTests.test_equal) ... ok
+test_lex_score (test_quality.QualityChecksTests.test_lex_score) ... ok
+test_one_or_no_allowed (test_quality.QualityChecksTests.test_one_or_no_allowed) ... ok
+test_only_allowed (test_quality.QualityChecksTests.test_only_allowed) ... ok
+test_only_shift_not_admin (test_quality.QualityChecksTests.test_only_shift_not_admin) ... ok
+test_unequal (test_quality.QualityChecksTests.test_unequal) ... ok
+test_workforce_no_admin (test_quality.QualityChecksTests.test_workforce_no_admin) ... ok
+test_workforce_score (test_quality.QualityChecksTests.test_workforce_score) ... ok
+test_disabled (test_quality.QualitySolverTests.test_disabled) ... skipped 'Thiếu OR-Tools'
+test_exact_balance (test_quality.QualitySolverTests.test_exact_balance) ... skipped 'Thiếu OR-Tools'
+test_priority_no_extra_admin (test_quality.QualitySolverTests.test_priority_no_extra_admin) ... skipped 'Thiếu OR-Tools'
+test_sample_both_scenarios (test_quality.QualitySolverTests.test_sample_both_scenarios) ... skipped 'Thiếu OR-Tools'
+test_timeout_fallback (test_quality.QualitySolverTests.test_timeout_fallback) ... skipped 'Thiếu OR-Tools'
+test_unavoidable_gap_is_soft (test_quality.QualitySolverTests.test_unavoidable_gap_is_soft) ... skipped 'Thiếu OR-Tools'
+test_bound (test_rest_balance.RestTests.test_bound) ... ok
+test_history_block (test_rest_balance.RestTests.test_history_block) ... ok
+test_holiday_weekend_still_rest_weekend (test_rest_balance.RestTests.test_holiday_weekend_still_rest_weekend) ... ok
+test_isolated_vs_pair (test_rest_balance.RestTests.test_isolated_vs_pair) ... ok
+test_last_day_not_invented (test_rest_balance.RestTests.test_last_day_not_invented) ... ok
+test_long_extra (test_rest_balance.RestTests.test_long_extra) ... ok
+test_month_ends_sunday (test_rest_balance.RestTests.test_month_ends_sunday) ... ok
+test_night_monday (test_rest_balance.RestTests.test_night_monday) ... ok
+test_non_shift_not_rest (test_rest_balance.RestTests.test_non_shift_not_rest) ... ok
+test_scores (test_rest_balance.RestTests.test_scores) ... ok
+test_sunday_first (test_rest_balance.RestTests.test_sunday_first) ... ok
+test_full_weekend_avoids_monday_night (test_rest_balance.SolverTests.test_full_weekend_avoids_monday_night) ... skipped 'Thiếu OR-Tools'
+test_model_terms_match_independent (test_rest_balance.SolverTests.test_model_terms_match_independent) ... skipped 'Thiếu OR-Tools'
+test_prefers_pair (test_rest_balance.SolverTests.test_prefers_pair) ... skipped 'Thiếu OR-Tools'
+test_disabled (test_rotation.BoundTests.test_disabled) ... ok
+test_dp_exhaustive (test_rotation.BoundTests.test_dp_exhaustive) ... ok
+test_holiday (test_rotation.BoundTests.test_holiday) ... ok
+test_incomplete_weekend (test_rotation.BoundTests.test_incomplete_weekend) ... ok
+test_normal (test_rotation.BoundTests.test_normal) ... ok
+test_admin_excluded (test_rotation.RotationTests.test_admin_excluded) ... ok
+test_balance_gap (test_rotation.RotationTests.test_balance_gap) ... ok
+test_change_and_short (test_rotation.RotationTests.test_change_and_short) ... ok
+test_ct_breaks_pair (test_rotation.RotationTests.test_ct_breaks_pair) ... ok
+test_history (test_rotation.RotationTests.test_history) ... ok
+test_invalid_threshold (test_rotation.RotationTests.test_invalid_threshold) ... ok
+test_off_breaks_pair (test_rotation.RotationTests.test_off_breaks_pair) ... ok
+test_same_type (test_rotation.RotationTests.test_same_type) ... ok
+test_threshold_equal_not_short (test_rotation.RotationTests.test_threshold_equal_not_short) ... ok
+test_lex_bound_not_componentwise (test_rotation.SolverTests.test_lex_bound_not_componentwise) ... skipped 'Thiếu OR-Tools'
+test_model_matches_score (test_rotation.SolverTests.test_model_matches_score) ... skipped 'Thiếu OR-Tools'
+test_prefers_same (test_rotation.SolverTests.test_prefers_same) ... skipped 'Thiếu OR-Tools'
+test_trial_infeasible_next_integer (test_rotation.SolverTests.test_trial_infeasible_next_integer) ... skipped 'Thiếu OR-Tools'
+test_historical_violation_not_rejected_when_new_day_off (test_sequences.SequenceCheckerTests.test_historical_violation_not_rejected_when_new_day_off) ... ok
+test_invalid_limit (test_sequences.SequenceCheckerTests.test_invalid_limit) ... ok
+test_missing_history (test_sequences.SequenceCheckerTests.test_missing_history) ... ok
+test_night_violation_at_boundary (test_sequences.SequenceCheckerTests.test_night_violation_at_boundary) ... ok
+test_non_shift_codes_break_streak (test_sequences.SequenceCheckerTests.test_non_shift_codes_break_streak) ... ok
+test_work_violation_at_boundary (test_sequences.SequenceCheckerTests.test_work_violation_at_boundary) ... ok
+test_boundary_nights (test_sequences.SequenceSolverTests.test_boundary_nights) ... skipped 'Thiếu OR-Tools; cần cài requirements.txt.'
+test_boundary_non_shift_breaks_streak (test_sequences.SequenceSolverTests.test_boundary_non_shift_breaks_streak) ... skipped 'Thiếu OR-Tools; cần cài requirements.txt.'
+test_boundary_work (test_sequences.SequenceSolverTests.test_boundary_work) ... skipped 'Thiếu OR-Tools; cần cài requirements.txt.'
+test_configurable_limits (test_sequences.SequenceSolverTests.test_configurable_limits) ... skipped 'Thiếu OR-Tools; cần cài requirements.txt.'
+test_five_shift_days_allowed (test_sequences.SequenceSolverTests.test_five_shift_days_allowed) ... skipped 'Thiếu OR-Tools; cần cài requirements.txt.'
+test_four_nights_forbidden (test_sequences.SequenceSolverTests.test_four_nights_forbidden) ... skipped 'Thiếu OR-Tools; cần cài requirements.txt.'
+test_full_month_with_group_A (test_sequences.SequenceSolverTests.test_full_month_with_group_A) ... skipped 'Thiếu OR-Tools; cần cài requirements.txt.'
+test_missing_history (test_sequences.SequenceSolverTests.test_missing_history) ... skipped 'Thiếu OR-Tools; cần cài requirements.txt.'
+test_six_shift_days_forbidden (test_sequences.SequenceSolverTests.test_six_shift_days_forbidden) ... skipped 'Thiếu OR-Tools; cần cài requirements.txt.'
+test_three_nights_allowed (test_sequences.SequenceSolverTests.test_three_nights_allowed) ... skipped 'Thiếu OR-Tools; cần cài requirements.txt.'
+test_admin_disabled_for_trial (test_staffing.StaffingTests.test_admin_disabled_for_trial) ... skipped 'Thiếu OR-Tools; cần cài requirements.txt.'
+test_configurable_limits (test_staffing.StaffingTests.test_configurable_limits) ... skipped 'Thiếu OR-Tools; cần cài requirements.txt.'
+test_ineligible_shift (test_staffing.StaffingTests.test_ineligible_shift) ... skipped 'Thiếu OR-Tools; cần cài requirements.txt.'
+test_invalid_limits (test_staffing.StaffingTests.test_invalid_limits) ... skipped 'Thiếu OR-Tools; cần cài requirements.txt.'
+test_no_leader (test_staffing.StaffingTests.test_no_leader) ... skipped 'Thiếu OR-Tools; cần cài requirements.txt.'
+test_overstaffed (test_staffing.StaffingTests.test_overstaffed) ... skipped 'Thiếu OR-Tools; cần cài requirements.txt.'
+test_understaffed (test_staffing.StaffingTests.test_understaffed) ... skipped 'Thiếu OR-Tools; cần cài requirements.txt.'
+test_valid_month (test_staffing.StaffingTests.test_valid_month) ... skipped 'Thiếu OR-Tools; cần cài requirements.txt.'
+test_12_hours (test_transitions.TransitionChecksTests.test_12_hours) ... ok
+test_alternative_midnight_schedule (test_transitions.TransitionChecksTests.test_alternative_midnight_schedule) ... ok
+test_bad_clock_or_offset (test_transitions.TransitionChecksTests.test_bad_clock_or_offset) ... ok
+test_boundary_rejected (test_transitions.TransitionChecksTests.test_boundary_rejected) ... ok
+test_exact_min_allowed (test_transitions.TransitionChecksTests.test_exact_min_allowed) ... ok
+test_explicit_independent_of_hours (test_transitions.TransitionChecksTests.test_explicit_independent_of_hours) ... ok
+test_history_across_day_off_when_needed (test_transitions.TransitionChecksTests.test_history_across_day_off_when_needed) ... ok
+test_matrix (test_transitions.TransitionChecksTests.test_matrix) ... ok
+test_missing_config (test_transitions.TransitionChecksTests.test_missing_config) ... ok
+test_missing_history (test_transitions.TransitionChecksTests.test_missing_history) ... ok
+test_no_two_shifts (test_transitions.TransitionChecksTests.test_no_two_shifts) ... ok
+test_off_between (test_transitions.TransitionChecksTests.test_off_between) ... ok
+test_12_hours_forbidden (test_transitions.TransitionSolverTests.test_12_hours_forbidden) ... skipped 'Thiếu OR-Tools'
+test_8_hours_allowed (test_transitions.TransitionSolverTests.test_8_hours_allowed) ... skipped 'Thiếu OR-Tools'
+test_b02 (test_transitions.TransitionSolverTests.test_b02) ... skipped 'Thiếu OR-Tools'
+test_boundary (test_transitions.TransitionSolverTests.test_boundary) ... skipped 'Thiếu OR-Tools'
+test_off_allowed (test_transitions.TransitionSolverTests.test_off_allowed) ... skipped 'Thiếu OR-Tools'
+test_two_day_gap (test_transitions.TransitionSolverTests.test_two_day_gap) ... skipped 'Thiếu OR-Tools'
+
+----------------------------------------------------------------------
+Ran 253 tests in 0.232s
+
+OK (skipped=87)
