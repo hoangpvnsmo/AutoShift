@@ -80,3 +80,8 @@ Kết quả trong môi trường tạo bản release: 253 test, 166 PASS, 87 SKI
 ## 6. Điều kiện sử dụng
 
 Đây là bản refactor, không phải bản xác nhận tuân thủ toàn bộ quy định nghiệp vụ. Chưa có Validator độc lập hoàn chỉnh, kiểm tra thời gian làm CT/DT/T/BKD, REPAIR hạn chế thay đổi lịch, xuất Excel/giao diện hoặc quản lý nhiều tiến trình cùng ghi checkpoint. Giữ nguyên cảnh báo không dùng làm lịch chính thức. Chỉ thay thư mục cũ sau khi kiểm thử đối chứng thành công.
+# AutoShift 5.0 — web cục bộ
+
+Đã bổ sung lớp SQLite, API, REPAIR, kế hoạch năm và giao diện Vue, giữ nguyên core/CLI 4.9. Chạy `start_autoshift.ps1` sau khi thiết lập bằng `setup_autoshift.ps1`. Web mặc định: http://127.0.0.1:8765.
+
+Hướng dẫn, kết quả kiểm thử và giới hạn chức năng: [docs/AUTOSHIFT_5_0.md](docs/AUTOSHIFT_5_0.md). Bản này chưa nghiệm thu trọn bộ các trường hợp REPAIR xuyên tháng; xem giới hạn trước khi dùng lịch chính thức. Nội dung bản 4.9 bên dưới được giữ để tương thích.

@@ -1,0 +1,10 @@
+-r requirements.txt
+ortools==9.15.6755
+openpyxl==3.1.5
+SQLAlchemy==2.0.58
+alembic==1.20.1
+fastapi==0.165.0
+uvicorn==0.54.0
+pydantic==2.14.4
+httpx==0.28.1
+pytest==9.2.0
