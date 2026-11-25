@@ -212,6 +212,37 @@ class DatabaseTests(DBCase):
         with self.service.sessions() as s:
             after=s.get(m.ScheduleVersion,last['result']['version_ids'][0]);self.assertEqual(after.proof['reused_prefix'],9)
 
+    def test_fresh_rebuild_existing_month_with_new_ct_bkd_real_solver(self):
+        _,original,mid=self.seed()
+        old=self.service.calendar(mid)['version']['id']
+        ct=self.service.request_batch(RequestBatch(revision=1,employee_ids=[1],from_date=ORIGIN,to_date=ORIGIN,code='CT'))
+        bkd=self.service.request_batch(RequestBatch(revision=ct['revision'],employee_ids=[7],from_date=ORIGIN,to_date=ORIGIN,code='BKD'))
+        job=self.service.enqueue(JobInput(revision=bkd['revision'],mode='FRESH',month_id=mid,budget=20))
+        self.assertIsNone(job['options']['baseline_version_id'])
+        with self.service.sessions() as s:
+            raw=s.get(m.InputSnapshot,job['snapshots'][0]).payload
+            self.assertEqual({r['code'] for r in raw['requests']},{'CT','BKD'})
+            self.assertEqual(set(raw['_context']['request_ids']),{ct['requests'][0]['id'],bkd['requests'][0]['id']})
+        execute(self.engine,job['id'])
+        result=self.service.job(job['id'])
+        self.assertEqual(result['status'],'SUCCEEDED',result['error'])
+        vid=result['result']['version_ids'][0]
+        with self.service.sessions() as s:
+            self.assertEqual(codes_for(s,vid)[1,ORIGIN],'CT')
+            self.assertEqual(codes_for(s,vid)[7,ORIGIN],'BKD')
+            self.assertEqual(codes_for(s,old),original)
+            self.assertEqual(s.get(m.PlanningMonth,mid).current_version_id,old)
+            self.assertEqual(s.get(m.ScheduleVersion,vid).status,'DRAFT')
+        self.assertTrue(all(r['status']=='APPROVED' for r in self.service.requests()))
+        self.service.confirm(vid,ConfirmInput(revision=bkd['revision'],expected_current_version_id=old,status='PLANNED'))
+        self.assertTrue(all(r['status']=='APPLIED' for r in self.service.requests()))
+
+    def test_resume_with_pending_requests_still_requires_repair(self):
+        _,_,mid=self.seed()
+        request=self.service.request_batch(RequestBatch(revision=1,employee_ids=[1],from_date=ORIGIN,to_date=ORIGIN,code='CT'))
+        with self.assertRaises(Conflict):
+            self.service.enqueue(JobInput(revision=request['revision'],mode='RESUME',month_id=mid,budget=1))
+
     def test_repair_review_confirm_and_export_real_solver(self):
         data,codes,mid=self.seed();old=self.service.calendar(mid)['version']['id']
         req=self.service.request_batch(RequestBatch(revision=1,employee_ids=[1],from_date=ORIGIN,to_date=ORIGIN,code='DT'))['requests'][0]

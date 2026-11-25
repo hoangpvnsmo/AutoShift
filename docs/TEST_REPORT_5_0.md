@@ -1,5 +1,7 @@
 # Báo cáo kiểm thử AutoShift 5.0
 
+Bổ sung luồng lập riêng tháng từ đầu: **43/43 test lớp 5.0 PASS** (`artifacts/monthly-fresh-tests.log`, 40,81 giây), gồm FRESH trên tháng đã có lịch với CT/BKD mới, bản cũ giữ nguyên, bản mới chờ duyệt và yêu cầu chỉ chuyển APPLIED sau duyệt. RESUME vẫn chặn yêu cầu mới để hướng tới REPAIR. TypeScript/Vite build và 3 component test cũng PASS sau cập nhật.
+
 Ngày 25/11/2026. Windows, Python 3.14.2, OR-Tools 9.15.6755, Node 22.23.5. Số liệu là lần chạy thực tế; không tính mock/stub như lần chạy Solver.
 
 ## Kết quả

@@ -55,7 +55,9 @@ Workbook đang có 21 nhân sự, 651 ô trong tháng 12/2026; đây là dữ li
 
 FRESH khởi tạo đường checkpoint riêng của job, độc lập checkpoint gốc. RESUME chọn phiên bản đầy đủ mã làm nghiệm nền. Chứng minh chỉ được tái dùng khi fingerprint core/input/objective tương thích, source ứng dụng còn khớp và nghiệm được kiểm tra lại. Chỉ khóa điểm đã chứng minh, không khóa toàn ma trận.
 
-Chọn Tối ưu tiếp và số lượt (mặc định tối đa 3), tổng thời gian. Dừng khi chứng minh xong hoặc hai lượt liên tiếp không cải thiện; luôn so theo vector mục tiêu tháng đang bật. Khi lịch nền có yêu cầu mới chưa áp dụng, API yêu cầu dùng REPAIR.
+Chọn Tối ưu tiếp và số lượt (mặc định tối đa 3), tổng thời gian. Dừng khi chứng minh xong hoặc hai lượt liên tiếp không cải thiện; luôn so theo vector mục tiêu tháng đang bật. Khi lịch nền có yêu cầu mới chưa áp dụng, RESUME yêu cầu dùng REPAIR. Nếu chủ động muốn xếp lại toàn bộ tháng, chọn **Lập lịch mới (FRESH)**; chế độ này được phép dùng tất cả yêu cầu đã duyệt mới nhất dù tháng đã có lịch.
+
+Để lập riêng T12/2026 từ đầu: chọn tháng 12/2026, vào Yêu cầu & nguyện vọng để rà soát/hủy yêu cầu cũ không còn dùng, thêm BKD/CT với trạng thái Đã duyệt, rồi về Lịch trực → Lập lịch mới. Không cần chạy kế hoạch năm. Kết quả mới là DRAFT để xem/kiểm tra/duyệt; bản cũ vẫn ở lịch sử. CT tính 1 công, BKD 0 công theo cấu hình hiện tại; cả hai không được bố trí ca trực trong ngày đó.
 
 ### REPAIR
 

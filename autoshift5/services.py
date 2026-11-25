@@ -336,7 +336,10 @@ class Service:
                     raise ValueError('Dữ liệu tương lai phải xác nhận hoặc có giả định rõ ràng.')
             else:
                 months = [require(s, m.PlanningMonth, payload.month_id)]
-            if payload.mode in ('FRESH','RESUME') and months[0].current_version_id:
+            # FRESH is the explicit choice to rebuild the whole month using all
+            # approved inputs. RESUME remains a quality-only continuation; new
+            # requests on a confirmed schedule should normally use REPAIR.
+            if payload.mode == 'RESUME' and months[0].current_version_id:
                 days=month_days(months[0].year,months[0].month)
                 if s.scalar(select(m.Request.id).where(m.Request.day.between(days[0],days[-1]),m.Request.status=='APPROVED').limit(1)):
                     raise Conflict('Lịch nền đã có yêu cầu mới chưa áp dụng. Dùng REPAIR để bảo toàn ổn định của lịch.')
