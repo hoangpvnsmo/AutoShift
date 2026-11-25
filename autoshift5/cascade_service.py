@@ -81,11 +81,13 @@ def confirm_cascade(service,job_id,payload):
             report=validate_month(data,codes,prefs,profile.work_policy)
             old=codes_for(s,month.current_version_id) if month.current_version_id else {}
             oldv=require(s,m.ScheduleVersion,month.current_version_id) if month.current_version_id else None
+            if job.mode=='BALANCE' and oldv and oldv.status=='PUBLISHED' and codes!=old:
+                raise Conflict('Cân năm không thay lịch đã công bố; không áp dụng một phần.')
             locks={(l.employee_id,l.day) for l in s.scalars(select(m.ScheduleLock).where(m.ScheduleLock.month_id==month.id))}
             for k,c in codes.items():
                 if c!=old.get(k) and (k in locks or (oldv and (oldv.status=='ACTUAL' or shift_start(data,k[1],old[k])<=stamp)) or shift_start(data,k[1],c)<=stamp):
                     raise Conflict('Gói đụng lịch thực tế, ô khóa hoặc ca/ngày đã bắt đầu; không áp dụng một phần.')
-            status=payload.status if not entries else (oldv.status if oldv and oldv.status in ('PUBLISHED','ACTUAL') else payload.status)
+            status=oldv.status if oldv and oldv.status in ('PUBLISHED','ACTUAL') and (entries or job.mode=='BALANCE') else payload.status
             if status in ('PUBLISHED','ACTUAL') and (report.hard_pending or history_gaps(data)):
                 raise Conflict('Chưa đủ giờ phi ca/lịch sử để công bố hoặc chốt toàn gói.')
             if entries:

@@ -97,12 +97,17 @@ def confirm_plan(service, plan_id, version_ids, expected_revision):
 
 def annual_statistics(service, plan_id):
     from collections import Counter
+    from types import SimpleNamespace
+    from .year_metrics import YearMetrics,weekend_records
+    from .validation import shift_start
     with service.sessions() as s:
         plan=require(s,m.AnnualPlan,plan_id)
         months=s.scalars(select(m.PlanningMonth).where(m.PlanningMonth.annual_plan_id==plan_id).order_by(m.PlanningMonth.month)).all()
         totals={}
         month_rows=[]
         personal=[]
+        metric_frames=[];all_codes={}
+        stamp=now()
         for month in months:
             vid=month.current_version_id
             month_rows.append({**row_dict(month),'pending_requests':s.scalar(select(__import__('sqlalchemy').func.count()).select_from(m.Request).where(m.Request.day.between(date(month.year,month.month,1),month_days(month.year,month.month)[-1]),m.Request.status=='APPROVED'))})
@@ -114,6 +119,8 @@ def annual_statistics(service, plan_id):
             month_rows[-1]['version_status']=v.status
             data,_=deserialize(require(s,m.InputSnapshot,v.snapshot_id).payload)
             codes=codes_for(s,vid)
+            all_codes.update(codes)
+            metric_frames.append(SimpleNamespace(month_id=month.id,data=data,baseline=codes))
             baseline=codes_for(s,month.baseline_version_id) if month.baseline_version_id else codes
             changes=s.scalars(select(m.ScheduleChange).join(m.ScheduleVersion,m.ScheduleChange.version_id==m.ScheduleVersion.id).where(
                 m.ScheduleVersion.month_id==month.id,m.ScheduleVersion.status.in_(['PLANNED','PUBLISHED','ACTUAL']))).all()
@@ -123,10 +130,12 @@ def annual_statistics(service, plan_id):
                 row=totals.setdefault(e.id,dict(employee_id=e.id,name=e.name,group=e.group,allowed_shifts=list(e.allowed_shifts),
                     shift_1=0,shift_2=0,shift_3=0,holiday=0,weekend=0,full_weekends=0,overtime=0,short_rest=0,changes=0,
                     substitutions=0,baseline_differences=0,work=0))
+                row.setdefault('elapsed_shifts',0)
                 count=Counter(codes[e.id,d] for d in days)
                 for k in (1,2,3): row[f'shift_{k}']+=count[str(k)]
                 row['holiday']+=sum(codes[e.id,d] in ('1','2','3') for d in days if d in data.holidays)
                 row['weekend']+=sum(codes[e.id,d] in ('1','2','3') for d in days if d.weekday()>=5 and d not in data.holidays)
+                row['elapsed_shifts']+=sum(codes[e.id,d] in ('1','2','3') and shift_start(data,d,codes[e.id,d])<=stamp for d in days)
                 row['short_rest']+=sum(i==e.id for i,d in short)
                 work=sum(data.rules['work_credit'][codes[e.id,d]] for d in days)
                 row['work']+=work
@@ -146,5 +155,39 @@ def annual_statistics(service, plan_id):
                 for sat,sun,pairs in rest_windows(data,days).weekends:
                     cell=lambda day: codes.get((e.id,day),data.previous.get((e.id,day)))
                     row['full_weekends']+=int(cell(sat)=='OFF' and cell(sun)=='OFF' and all(cell(d)!=str(k) for d,k in pairs))
+        summary=None
+        if metric_frames:
+            last=month_days(metric_frames[-1].data.year,metric_frames[-1].data.month)[-1]+timedelta(days=1)
+            neighbor=s.scalar(select(m.PlanningMonth).where(m.PlanningMonth.year==last.year,m.PlanningMonth.month==last.month))
+            frontier=None
+            if neighbor and neighbor.current_version_id:
+                fv=require(s,m.ScheduleVersion,neighbor.current_version_id)
+                fd,_=deserialize(require(s,m.InputSnapshot,fv.snapshot_id).payload)
+                frontier=SimpleNamespace(data=fd,baseline=codes_for(s,fv.id))
+            metrics=YearMetrics(metric_frames,frontier);summary=metrics.report(all_codes)
+            by_id={r['employee_id']:r for r in summary['employees']}
+            known={**metrics.extra,**all_codes}
+            for row in totals.values():
+                i=row['employee_id'];row['total_shifts']=sum(row[f'shift_{k}'] for k in (1,2,3))
+                row['weekend_nonholiday']=row['weekend']
+                row['weekend']=sum(c in ('1','2','3') and d.weekday()>=5 for (eid,d),c in all_codes.items() if eid==i)
+                # Reporting includes ALL known weekends, including the three
+                # 2027 Sundays whose following Monday lies in the next month.
+                row['full_weekends']=0
+                for frame in metric_frames:
+                    if not any(e.id==i for e in frame.data.employees):continue
+                    for sat,sun,pairs,required in weekend_records(frame.data,known):
+                        if all((i,d) in known for d in required):
+                            row['full_weekends']+=int(known[i,sat]=='OFF' and known[i,sun]=='OFF' and all(known[i,d]!=shift for d,shift in pairs))
+                for field in ('target_shifts_lower','target_shifts_upper','target_weekend_lower','target_weekend_upper',
+                              'remaining_to_target_lower','remaining_to_target_upper'):
+                    row[field]=None
+                if i in by_id:
+                    t=by_id[i]['targets']['total_shifts'];w=by_id[i]['targets']['weekend_shifts']
+                    row.update(target_shifts_lower=t['lower'],target_shifts_upper=t['upper'],
+                        target_weekend_lower=w['lower'],target_weekend_upper=w['upper'],
+                        remaining_to_target_lower=max(0,t['lower']-row['elapsed_shifts']),
+                        remaining_to_target_upper=max(0,t['upper']-row['elapsed_shifts']))
         return dict(plan=row_dict(plan),months=month_rows,employees=list(totals.values()),personal=personal,
-                    fairness='Các nhóm so sánh cần cùng quyền ca và công chuẩn; mục tiêu tích lũy chưa được ưu tiên hơn ổn định REPAIR.')
+                    balance_summary=summary,
+                    fairness='Cân năm ưu tiên tổng ca 1/2/3, ca T7/CN kể cả lễ, nghỉ trọn theo giờ thực. Mục tiêu điều chỉnh theo ngày khả dụng và tỷ lệ công chuẩn; bảo vệ lịch thực tế và lịch đã công bố.')

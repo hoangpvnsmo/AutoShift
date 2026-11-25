@@ -82,6 +82,8 @@ def execute(engine, job_id):
     results = []
     cumulative = {}
     deadline = perf_counter()+float(options['budget'])
+    balance_report=None
+    planning_deadline=deadline-float(options['budget'])*.4 if mode=='ANNUAL' and options.get('annual_balance',True) and len(specs)>1 else deadline
     try:
         previous_result = None
         for index, spec in enumerate(specs):
@@ -98,7 +100,7 @@ def execute(engine, job_id):
                 data = replace(data, previous={k: prev_codes[k] for k in sorted(needed)})
             if mode=='ANNUAL' and history_gaps(data):
                 raise ValueError('ANNUAL thiếu lịch sử cho E05 ở tháng đầu; khai báo rõ ít nhất 6 ngày, không tự điền OFF.')
-            budget = max(.01, (deadline-perf_counter())/(len(specs)-index))
+            budget = max(.01, (planning_deadline-perf_counter())/(len(specs)-index))
             emit(f'{data.year}-{data.month:02d}: bắt đầu {mode}, ngân sách còn {budget:.2f}s')
             repair = None
             if mode=='REPAIR':
@@ -185,8 +187,11 @@ def execute(engine, job_id):
                     emit(key,layer.status,layer.before,'->',layer.after,layer.note)
                 if mode=='ANNUAL':
                     from .annual_fairness import refine_annual, counts_for, eligibility_record
-                    codes,report,annual_fairness=refine_annual(data,prefs,codes,report,cumulative,
-                        budget=max(0,pass_end-perf_counter()),work_policy=spec['policy'],emit=emit)
+                    if options.get('annual_balance',True):
+                        annual_fairness={'status':'DEFERRED_TO_YEAR_BALANCE','policy':'Dành 40% ngân sách cho cân toàn năm trước khi lưu V0.'}
+                    else:
+                        codes,report,annual_fairness=refine_annual(data,prefs,codes,report,cumulative,
+                            budget=max(0,pass_end-perf_counter()),work_policy=spec['policy'],emit=emit)
                     quality=score_vector(report)
                     proof['annual_fairness_optimization']=annual_fairness
                     for i,row in counts_for(data,codes).items():
@@ -206,6 +211,43 @@ def execute(engine, job_id):
                          quality=quality, repair=repair, boundary=boundary)
             results.append(entry)
             previous_result = entry
+        if mode=='ANNUAL' and options.get('annual_balance',True):
+            from .year_balance import balance_year
+            from .cascade_model import CascadeFrame
+            from .year_metrics import YearMetrics
+            from datetime import timedelta
+            frames=[];frontier=None
+            for r in results:
+                context=r['spec']['raw']['_context']
+                locks=tuple((l['employee_id'],date.fromisoformat(l['day'])) for l in context.get('locks',[]))
+                frames.append(CascadeFrame(r['spec']['month_id'],r['data'],r['prefs'],r['codes'],None,
+                    locks=locks,work_policy=r['spec']['policy'],fixed_data=r['data'],fixed_prefs=r['prefs'],fixed_policy=r['spec']['policy']))
+            nextday=month_days(frames[-1].data.year,frames[-1].data.month)[-1]+timedelta(days=1)
+            with sessions() as s:
+                other=s.scalar(select(m.PlanningMonth).where(m.PlanningMonth.year==nextday.year,m.PlanningMonth.month==nextday.month))
+                if other and other.current_version_id:
+                    v=require(s,m.ScheduleVersion,other.current_version_id);snap=require(s,m.InputSnapshot,v.snapshot_id)
+                    fd,fp=deserialize(snap.payload)
+                    frontier=CascadeFrame(other.id,fd,fp,codes_for(s,v.id),v.id,status=v.status,
+                        fixed_data=fd,fixed_prefs=fp,fixed_policy=snap.work_policy)
+            remaining=deadline-perf_counter()
+            if remaining>.05:
+                balanced=balance_year(frames,frontier,RepairOptions(as_of=datetime.fromisoformat(options['as_of']) if options.get('as_of') else now(),
+                    budget=remaining),window_months=options.get('balance_window_months',3),emit=emit,cancelled=is_cancelled)
+                if balanced.status=='CANCELLED':raise Cancelled()
+                if not balanced.entries:raise NoSolution(balanced.status,'Chưa có phương án cân năm đã kiểm tra.')
+                balance_report={**balanced.metrics['annual_balance'],'proof':balanced.proof,'attempts':balanced.attempts}
+                for r,e in zip(results,balanced.entries):
+                    original_proof=r['proof']
+                    r.update(data=e['data'],codes=e['codes'],report=e['report'].to_dict(),quality=e['quality'],
+                        proof=dict(status='FEASIBLE',engine_prefix=0,reused_prefix=0,all_active_proven=False,
+                            monthly_before_balance=original_proof,annual_balance=balanced.proof))
+                for j,r in enumerate(results):
+                    r['boundary']=balanced.boundaries[j-1] if j else None
+            else:
+                context=YearMetrics(frames,frontier);flat={k:c for f in frames for k,c in f.baseline.items()};report=context.report(flat)
+                balance_report=dict(before=report,after=report,status='NOT_RUN_BUDGET_EXHAUSTED')
+                emit('Chưa chạy cân năm: hết ngân sách sau khi lập các tháng. Kết quả chưa được coi là đã cân năm.')
         if is_cancelled():
             raise Cancelled()
         with sessions.begin() as s:
@@ -232,6 +274,7 @@ def execute(engine, job_id):
             j.result = dict(version_ids=ids, repair=results[0]['repair'] if len(results)==1 else None,
                             boundaries=[r['boundary'] for r in results if r['boundary']], elapsed_budget=options['budget']-(deadline-perf_counter()),
                             publication='DRAFT_ONLY')
+            if balance_report:j.result['annual_balance']=balance_report
             audit(s, 'SOLVER_RESULT', job_id, {'version_ids': ids})
     except Cancelled:
         with sessions.begin() as s:

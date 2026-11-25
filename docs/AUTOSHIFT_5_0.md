@@ -87,9 +87,21 @@ Kết quả hiển thị từng tháng, số ô đổi so với lịch áp dụn
 
 Tạo kế hoạch từ tháng nguồn, khai báo giả định, chỉnh từng tháng rồi chạy Lập lịch năm. Tháng đầu cần lịch sử thực tế liên tiếp đủ chiều dài theo cấu hình (ít nhất 6 ngày cho E05). Các tháng tiếp theo nhận mã đầy đủ của tháng đã giải trước đó. Không giả định OFF hoặc ngày lễ/yêu cầu của tháng khác.
 
-Solver tháng giữ công chuẩn, quyền và nhu cầu của từng tháng. Sau toàn bộ mục tiêu tháng đang bật, tầng cân bằng tích lũy so các nhóm cùng vai trò, quyền ca và công chuẩn theo ca 1/2/3, lễ, cuối tuần không trùng lễ, cuối tuần nghỉ trọn, công vượt, nghỉ ngắn. Đây là tối ưu cuốn chiếu, không phải chứng minh tối ưu chung cả năm.
+Solver tháng giữ công chuẩn, quyền và nhu cầu của từng tháng. Mặc định dành 60% ngân sách để dựng lịch các tháng và 40% để cân cả kế hoạch trước khi lưu V0. Tầng cân mới ưu tiên nguồn lực, tổng ca trực 1/2/3 trong năm, ca T7/CN kể cả trùng lễ, cơ hội nghỉ trọn cuối tuần theo giờ thực, rồi độ chênh công tháng và số ô đổi. Không khóa các điểm chất lượng tháng đã đạt ở lượt dựng ban đầu để cản việc cân năm. Các điểm E01–E06 được tính lại độc lập; không được xem là giữ nguyên hoặc đã tối ưu sau khi cân năm. Nếu không còn ngân sách để cân thì kết quả ghi rõ NOT_RUN_BUDGET_EXHAUSTED. Đây là tìm kiếm có giới hạn thời gian, không phải chứng minh tối ưu chung cả năm.
 
 Toàn bộ tháng và biên được kiểm tra trước khi lưu các bản nháp trong cùng transaction. Nếu một tháng thất bại, không lưu lịch một phần. Xác nhận toàn kế hoạch đóng băng V0 trong một transaction riêng; không tự công bố. Lịch cá nhân, thống kê, số ô thay đổi, số lần thay người và sai khác V0 nằm trong màn hình năm.
+
+### Cân bằng năm định kỳ — BALANCE
+
+Sau khi đã có V0, vào **Kế hoạch năm**, chọn năm và bấm **Cân bằng năm**. Đặt tổng ngân sách, tháng bắt đầu được phép sửa, số tháng mỗi vùng CP (mặc định 3) và giới hạn số ô đổi nếu cần. Phần đã thực hiện theo thời điểm as_of, ACTUAL, PUBLISHED, ô khóa và tháng trước phạm vi đều được giữ cố định. Toàn bộ phần đã qua vẫn được tính vào tổng năm để phần tương lai bù dần. Cần REPAIR áp dụng các yêu cầu mới trước khi chạy BALANCE.
+
+Mục tiêu chính là số ca trực, không phải công quy đổi có CT/DT/T. Mỗi nhân sự SHIFT có trọng số theo số ngày khả dụng sau yêu cầu OFF/CT/DT/BKD và tỷ lệ công chuẩn riêng so với công chuẩn lịch tháng. Không tách nhóm phụ trách khỏi nhóm trực khi cân tổng ca; quyền và phụ trách vẫn là rule cứng. Ca T7/CN có trọng số khả dụng riêng. Mục tiêu từng người hiển thị khoảng nguyên dưới/trên theo tỷ trọng và tổng ca thực tế cần phân bổ, không ép một người vắng dài ngày bằng người đủ cả năm.
+
+Luồng tìm kiếm dùng lịch hiện có làm nghiệm nền, thử chuyển ca đơn, hoán đổi ca cuối tuần kèm ngày thường và hoán đổi cụm tuần. Chỉ nhận thay đổi cải thiện vector sau khi kiểm tra rule gốc, không giảm tổng số cuối tuần nghỉ trọn của cả đội so với lịch ban đầu. Khi tổng ca hoặc ca cuối tuần đã đạt mức chia đều số học ở nhóm đồng điều kiện, chuyển sớm sang mục tiêu tiếp theo. Phần thời gian còn lại mở các vùng CP-SAT ghép tháng nhỏ, giữ các tháng khác cố định. Mô hình vùng bỏ việc dựng toàn bộ biến chất lượng tháng không tham gia mục tiêu, đồng thời khóa các tầng đã đạt cận số học để tập trung phần chưa đạt. Khi Solver hòa điểm ở tầng hiện tại nhưng làm xấu tầng sau, giữ nghiệm tốt hơn đã có. Mọi điểm sau cùng đều được tính lại độc lập; FEASIBLE không được gắn nhãn tối ưu toàn năm hoặc ít ô đổi nhất.
+
+Màn hình năm hiển thị tổng ca, công quy đổi, số ca đã bắt đầu theo lịch và số ca còn tới khoảng mục tiêu. Thống kê nghỉ trọn ghép đủ thứ Bảy, Chủ nhật và ca đêm tối Chủ nhật của tháng kế tiếp; thiếu dữ liệu báo chờ, không mặc định nghỉ. Kết quả BALANCE có bảng trước/sau và từng nhân sự, lưu cả gói DRAFT. Chọn **Duyệt toàn bộ gói dự kiến** để áp dụng; V0 và phiên bản cũ giữ nguyên. Có thể cân lại hàng tháng sau khi cập nhật ca thực tế/yêu cầu, chỉ mở phần tương lai chưa chốt.
+
+API: `POST /api/jobs` với `mode: "BALANCE"`, `annual_plan_id`, `revision`, `budget`, `balance_from_month`, `balance_window_months`, `as_of` và `max_changes` nếu cần. Duyệt qua `POST /api/jobs/{job_id}/confirm`. `annual_balance: false` chỉ là tùy chọn tương thích để giữ luồng ANNUAL cũ; giao diện mặc định bật phương pháp mới.
 
 ## Validator và giờ phi ca
 

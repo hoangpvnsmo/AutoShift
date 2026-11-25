@@ -79,6 +79,18 @@ REPAIR một tháng kiểm tra cả tháng, tháng trước đã có và tháng 
 
 `cascade_service.py` chụp các snapshot cùng revision và frontier, chỉ lấy chuỗi tháng có lịch áp dụng liên tiếp. `cascade_worker.py` không giữ transaction trong lúc giải; lưu tất cả bản nháp trong một transaction sau khi kiểm tra revision, trạng thái job và toàn bộ current pointers. Snapshot kết quả chứa previous từ phương án liên kết. Duyệt gói kiểm tra lại toàn bộ mã, thời điểm ca, locks, revision, status, pointers và frontier, rồi thay current pointers đồng thời. Chặn duyệt hoặc sửa riêng thành viên DRAFT. V0 không thay đổi.
 
+## Cân bằng năm
+
+`year_metrics.py` không nhập Solver, đếm tổng ca SHIFT, ca T7/CN kể cả lễ và cuối tuần nghỉ trọn từ toàn bộ mã năm, lịch sử và frontier. Các cuối tuần có Chủ nhật cuối tháng vẫn kiểm tra ca 1 thứ Hai tháng sau. Trọng số tổng ca và ca cuối tuần là tổng ngày khả dụng × tỷ lệ công chuẩn × 1000, làm tròn từng tháng rồi rút gọn bằng gcd. Cuối tuần nghỉ trọn có trọng số theo số cơ hội hợp lệ. Thiếu dữ liệu ở biên được ghi pending.
+
+Với tổng trọng số W, trọng số người i là w_i và tổng ca T, độ lệch là |W × ca_i − w_i × T|. Vector cân năm giảm lần lượt: tổng công vượt SHIFT, tổng hỗ trợ ADMIN, max/sum độ lệch tổng ca, max/sum độ lệch ca cuối tuần, thiếu hụt tỷ lệ nghỉ trọn thấp nhất, max/sum độ lệch nghỉ trọn, âm tổng nghỉ trọn, tổng chênh công tháng, số ô đổi. Trọng số không phụ thuộc lịch đang xếp nên không làm thay đổi mục tiêu để làm đẹp điểm. Vai trò phụ trách được bảo vệ bằng rule cứng, không chia nhỏ nhóm cân tổng ca theo vai trò. CT/DT/T không tính là ca trực.
+
+`year_balance.py` giữ mã hiện tại làm warm start, dùng sổ đếm tăng dần để loại nhanh đề xuất không cải thiện. Chuyển một ngày, hai ngày cuối tuần/ngày thường và cụm tuần chỉ sửa SHIFT, giữ nguyên số người mỗi ca theo ngày. Rule quyền, requests, giờ bắt đầu và đóng băng được xét trước; các bộ kiểm tra gốc kiểm tra người, tháng và biên bị ảnh hưởng. Vector tăng dần được đối chiếu lại từ toàn năm.
+
+`year_balance_cp.py` dùng LinkedModel với `quality=False, repair_terms=False`, thêm biểu thức năm gồm phần cố định ngoài vùng và phần biến trong vùng. CP tối ưu tuần tự, khóa các cận 0 và cận chia đều đã đạt khi hợp lệ; dùng cận miền tính từ số ngày/người/trọng số thay cho miền quá rộng. Khi tầng hiện tại hòa điểm, so tiếp toàn vector và giữ incumbent nếu nghiệm mới xấu hơn ở tầng sau. Tổng số cuối tuần nghỉ trọn không được giảm so với baseline, áp dụng trong cả exchange và CP. Các nghiệm được Independent Validator kiểm tra cả năm; thiếu mô hình giờ phi ca không được giải quyết bằng cách chấp nhận lỗi. Chứng minh OPTIMAL của một vùng không được quảng bá thành tối ưu toàn năm.
+
+`year_service.py` chụp tất cả tháng hiện có của kế hoạch và frontier với một revision. BALANCE dùng đường lưu và duyệt nguyên gói của cascade, source BALANCE, giữ V0. Lịch ACTUAL/PUBLISHED, ngày đã bắt đầu, locks và phần trước `balance_from_month` cố định. Pending APPROVED phải REPAIR trước. ANNUAL mặc định dành 40% tổng ngân sách cho cùng bộ cân năm sau bước dựng lịch và trước transaction lưu V0; reset proof tháng sau khi thay mã và ghi riêng before/after. Cách cân cũ trong annual_fairness.py chỉ dùng khi explicit `annual_balance: false`.
+
 ## API
 
 - `/api/import`, `/api/health`, `/api/months/{id}/calendar`.

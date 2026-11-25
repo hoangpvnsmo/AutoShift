@@ -59,4 +59,6 @@ Gi? nguy?n core/, validator/, CLI, input, rules v? l?ch/checkpoint g?c.
 
 Các file bổ sung cho sửa liên kết: `autoshift5/cascade_model.py` (mô hình ghép tháng), `cascade.py` (mở vùng và đối chiếu độc lập), `cascade_service.py` (snapshot và duyệt nguyên gói), `cascade_worker.py` (worker lưu nguyên gói), `tests/test_cascade.py` (CP-SAT và API integration), `scripts/check_cascade_copy.py` (kiểm tra trên bản sao CSDL).
 
+Cân năm: `autoshift5/year_metrics.py` (đếm và điểm độc lập), `year_balance.py` (hiệu chỉnh có warm start), `year_balance_cp.py` (CP ghép vùng nhỏ), `year_service.py` (snapshot cho BALANCE), `tests/test_year_balance.py`, `frontend/src/components/AnnualBalanceSummary.vue` và test tương ứng. `scripts/run_year_balance_review.py` tạo gói DRAFT qua API, không duyệt.
+
 Artifacts, CSDL v? build trong artifacts/, data/, frontend/dist/ kh?ng commit d? li?u v?n h?nh v?o Git.

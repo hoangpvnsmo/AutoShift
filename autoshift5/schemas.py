@@ -62,7 +62,7 @@ class PreferenceInput(Revision):
 
 
 class JobInput(Revision):
-    mode: Literal['FRESH', 'RESUME', 'REPAIR', 'ANNUAL']
+    mode: Literal['FRESH', 'RESUME', 'REPAIR', 'ANNUAL', 'BALANCE']
     month_id: int | None = None
     annual_plan_id: int | None = None
     baseline_version_id: str | None = None
@@ -79,6 +79,9 @@ class JobInput(Revision):
     disabled_layers: list[Literal['R2', 'R3', 'R4', 'R5', 'R6', 'R7', 'R8']] = []
     cascade: bool = False
     cascade_months: int = Field(default=12, ge=0, le=24)
+    annual_balance: bool = True
+    balance_from_month: int = Field(default=1,ge=1,le=12)
+    balance_window_months: int = Field(default=3,ge=1,le=6)
 
 
 class ConfirmInput(Revision):

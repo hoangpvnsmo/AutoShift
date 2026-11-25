@@ -334,6 +334,9 @@ class Service:
             return dict(revision=revision(s), version_id=v.id)
 
     def enqueue(self, payload):
+        if payload.mode=='BALANCE':
+            from .year_service import enqueue_balance
+            return enqueue_balance(self,payload)
         if payload.cascade:
             from .cascade_service import enqueue_cascade
             return enqueue_cascade(self,payload)

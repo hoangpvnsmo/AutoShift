@@ -60,7 +60,7 @@ def previous_with(data,codes):
 
 
 class LinkedModel:
-    def __init__(self,frames,right,options,*,root_fresh=False,direct_ids=()):
+    def __init__(self,frames,right,options,*,root_fresh=False,direct_ids=(),quality=True,repair_terms=True):
         self.frames,self.right,self.options=frames,right,options
         self.root_fresh=root_fresh
         self.model=cp_model.CpModel()
@@ -105,10 +105,11 @@ class LinkedModel:
             self._sequences(rd,month_days(rd.year,rd.month)[:n])
         self.model.clear_objective()
         self.qualities=[];self.active=[]
-        for data,ctx,credit,frame in zip(self.data,self.contexts,self.credits,frames):
-            quality,active=self._quality(ctx,data,credit,frame.prefs)
-            self.qualities.append(quality);self.active.append(active)
-        self._repair_terms(direct_ids)
+        if quality:
+            for data,ctx,credit,frame in zip(self.data,self.contexts,self.credits,frames):
+                terms,active=self._quality(ctx,data,credit,frame.prefs)
+                self.qualities.append(terms);self.active.append(active)
+        if repair_terms:self._repair_terms(direct_ids)
 
     def root_allowed(self,days):
         return {d for d in days if (self.options.allowed_from is None or d>=self.options.allowed_from)

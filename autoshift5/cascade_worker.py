@@ -64,7 +64,11 @@ def execute_cascade(engine,job_id):
             max_changes=opts.get('max_changes'),no_admin_increase=opts['no_admin_increase'],
             no_overtime_increase=opts['no_overtime_increase'],disabled_layers=tuple(opts.get('disabled_layers',[])))
         if minimum_size>1:emit(f'Đầu vào/yêu cầu tương lai đã đổi: vùng giải tối thiểu {minimum_size} tháng.')
-        result=solve_cascade(frames,frontier,options,root_fresh=mode=='FRESH',direct_ids=direct,minimum_size=minimum_size,emit=emit,cancelled=cancelled)
+        if mode=='BALANCE':
+            from .year_balance import balance_year
+            result=balance_year(frames,frontier,options,window_months=opts.get('balance_window_months',3),emit=emit,cancelled=cancelled)
+        else:
+            result=solve_cascade(frames,frontier,options,root_fresh=mode=='FRESH',direct_ids=direct,minimum_size=minimum_size,emit=emit,cancelled=cancelled)
         if result.status=='CANCELLED' or cancelled():raise Cancelled()
         if not result.entries:raise NoSolution(result.status,'Không tìm được gói sửa hợp lệ; không lưu hoặc đổi lịch áp dụng.')
         with sessions.begin() as s:
@@ -81,7 +85,7 @@ def execute_cascade(engine,job_id):
                 f=e['frame'];original=require(s,m.InputSnapshot,f.snapshot_id)
                 context={**original.payload['_context'],'cascade_job_id':job_id}
                 snap=snapshot(s,f.month_id,data=e['data'],prefs=f.prefs,context=context)
-                v=save_version(s,f.month_id,snap,e['codes'],e['report'].to_dict(),source=mode if index==0 else 'REPAIR_CASCADE',
+                v=save_version(s,f.month_id,snap,e['codes'],e['report'].to_dict(),source=mode if index==0 or mode=='BALANCE' else 'REPAIR_CASCADE',
                     parent=f.version_id,proof={**result.proof,'cascade_job_id':job_id},scores=e['quality'],repair=e['metrics'])
                 changes=changed_cells(f.baseline,e['codes']) if f.baseline else []
                 ids.append(v.id);summaries.append(dict(month_id=f.month_id,year=f.data.year,month=f.data.month,
@@ -91,6 +95,7 @@ def execute_cascade(engine,job_id):
             j.status,j.finished_at,j.stage='SUCCEEDED',now(),'Đã lưu gói bản nháp liên kết; chờ duyệt cùng nhau'
             j.result=dict(cascade=True,version_ids=ids,month_summaries=summaries,repair=result.metrics,proof=result.proof,
                 attempts=result.attempts,boundaries=result.boundaries,publication='DRAFT_ONLY',confirmed=False)
+            if mode=='BALANCE':j.result['annual_balance']=result.metrics['annual_balance']
             audit(s,'CASCADE_RESULT',job_id,{'version_ids':ids,'changed_cells':result.metrics['changed_cells']})
     except Exception as exc:
         with sessions.begin() as s:
