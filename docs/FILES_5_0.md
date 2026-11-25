@@ -1,5 +1,7 @@
 # File m?i v? s?a cho AutoShift 5.0
 
+Clear năm: `autoshift5/year_clear.py` (preview, backup và reset logic giữ lịch sử), DTO/routes trong `schemas.py`/`api.py`, kiểm tra biên sau ANNUAL trong `worker.py`, `frontend/src/components/ClearYearDialog.vue` và tích hợp trong `App.vue`. Test: `tests/test_year_clear.py`, `ClearYearDialog.test.ts`; hợp đồng `docs/openapi-5.0.json` được cập nhật.
+
 Gi? nguy?n core/, validator/, CLI, input, rules v? l?ch/checkpoint g?c.
 
 | File | Tr?ch nhi?m |

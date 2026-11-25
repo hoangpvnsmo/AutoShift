@@ -91,6 +91,18 @@ Solver tháng giữ công chuẩn, quyền và nhu cầu của từng tháng. M�
 
 Toàn bộ tháng và biên được kiểm tra trước khi lưu các bản nháp trong cùng transaction. Nếu một tháng thất bại, không lưu lịch một phần. Xác nhận toàn kế hoạch đóng băng V0 trong một transaction riêng; không tự công bố. Lịch cá nhân, thống kê, số ô thay đổi, số lần thay người và sai khác V0 nằm trong màn hình năm.
 
+### Clear năm để kiểm thử hoặc lập lại từ đầu
+
+Vào **Kế hoạch năm**, chọn đúng năm, bấm **Clear năm**, xem phạm vi và xác nhận **Clear năm 2027** (hoặc năm đã chọn). Sau khi hoàn tất, bấm **Lập lịch năm**; không cần tạo lại 12 tháng.
+
+Clear đưa mọi tháng hiện có của năm đã chọn về chưa xếp, bỏ liên kết lịch áp dụng/V0 và khóa ô của lịch cũ, mở lại bước lập V0. Giữ nguyên nhân sự, quyền ca, công chuẩn, quy tắc, chính sách giờ, ngày lễ, định biên, yêu cầu CT/DT/BKD/OFF và nguyện vọng. Yêu cầu APPLIED trở về APPROVED để Solver áp dụng lại; các trạng thái khác giữ nguyên. Lịch các năm khác không thay đổi. Lịch sử dẫn xuất của các tháng sẽ được dựng lại, giữ mốc lịch sử trước tháng đầu.
+
+Hệ thống tự tạo SQLite online backup trong `artifacts/backups/before_clear_<năm>_*.db` trước khi thay đổi. Bản lịch, ô phân công và snapshot cũ vẫn nguyên vẹn trong lịch sử; các kết quả Solver cũ liên quan chuyển ARCHIVED và không thể duyệt lại. Clear không phải xóa vật lý dữ liệu. Nhật ký CLEAR_YEAR ghi đường dẫn backup, phiên bản cũ và phạm vi thay đổi.
+
+Chặn Clear khi đang có Solver chạy, lịch áp dụng đã PUBLISHED/ACTUAL hoặc đã có ca/ngày bắt đầu. Hộp xác nhận dùng revision riêng; dữ liệu đổi sau khi xem trước thì cần mở lại hộp. Lập lại ANNUAL vẫn kiểm tra biên với tháng kế tiếp đang áp dụng, kể cả khi tắt hoặc hết thời gian cân năm; xung đột thì không lưu một phần.
+
+API: `GET /api/annual-plans/{id}/clear-preview`, sau đó `POST /api/annual-plans/{id}/clear` với `year` và `revision` đã xem trước. Bấm lại khi đã trống không tạo backup hoặc tăng revision lần nữa.
+
 ### Cân bằng năm định kỳ — BALANCE
 
 Sau khi đã có V0, vào **Kế hoạch năm**, chọn năm và bấm **Cân bằng năm**. Đặt tổng ngân sách, tháng bắt đầu được phép sửa, số tháng mỗi vùng CP (mặc định 3) và giới hạn số ô đổi nếu cần. Phần đã thực hiện theo thời điểm as_of, ACTUAL, PUBLISHED, ô khóa và tháng trước phạm vi đều được giữ cố định. Toàn bộ phần đã qua vẫn được tính vào tổng năm để phần tương lai bù dần. Cần REPAIR áp dụng các yêu cầu mới trước khi chạy BALANCE.

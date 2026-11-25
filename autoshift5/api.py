@@ -250,6 +250,16 @@ def create_app(db_path=None, *, start_workers=True):
     @app.get('/api/annual-plans/{plan_id}')
     def annual(plan_id:int) -> dict: return annual_statistics(service,plan_id)
 
+    @app.get('/api/annual-plans/{plan_id}/clear-preview')
+    def clear_preview(plan_id:int) -> dict:
+        from .year_clear import preview_clear
+        return preview_clear(service,plan_id)
+
+    @app.post('/api/annual-plans/{plan_id}/clear')
+    def clear_annual(plan_id:int,payload:dto.YearClearInput) -> dict:
+        from .year_clear import clear_year
+        return clear_year(service,plan_id,payload)
+
     class AnnualConfirm(dto.Revision):
         version_ids:list[str]
 

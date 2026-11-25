@@ -1,6 +1,6 @@
 """One owned process per durable job. No database transaction spans a solve."""
 from dataclasses import replace
-from datetime import date, datetime
+from datetime import date, datetime, timedelta
 from pathlib import Path
 from time import perf_counter
 from uuid import uuid4
@@ -93,7 +93,6 @@ def execute(engine, job_id):
             if previous_result:
                 prev_codes = previous_result['codes']
                 first = month_days(data.year, data.month)[0]
-                from datetime import timedelta
                 needed = {(e.id, first-timedelta(days=k)) for e in data.employees for k in range(1, history_length(data)+1)}
                 if not needed <= set(prev_codes):
                     raise ValueError('ANNUAL thiếu lịch sử ở biên hoặc có nhân sự mới chưa khai báo lịch sử.')
@@ -215,7 +214,6 @@ def execute(engine, job_id):
             from .year_balance import balance_year
             from .cascade_model import CascadeFrame
             from .year_metrics import YearMetrics
-            from datetime import timedelta
             frames=[];frontier=None
             for r in results:
                 context=r['spec']['raw']['_context']
@@ -248,6 +246,17 @@ def execute(engine, job_id):
                 context=YearMetrics(frames,frontier);flat={k:c for f in frames for k,c in f.baseline.items()};report=context.report(flat)
                 balance_report=dict(before=report,after=report,status='NOT_RUN_BUDGET_EXHAUSTED')
                 emit('Chưa chạy cân năm: hết ngân sách sau khi lập các tháng. Kết quả chưa được coi là đã cân năm.')
+        if mode=='ANNUAL' and results:
+            # A re-created year must also fit an existing following year, even
+            # when its optional balance phase ran out of time.
+            with sessions() as s:
+                last=results[-1];nextday=month_days(last['data'].year,last['data'].month)[-1]+timedelta(days=1)
+                neighbor=s.scalar(select(m.PlanningMonth).where(m.PlanningMonth.year==nextday.year,m.PlanningMonth.month==nextday.month))
+                if neighbor and neighbor.current_version_id:
+                    nv=require(s,m.ScheduleVersion,neighbor.current_version_id);ns=require(s,m.InputSnapshot,nv.snapshot_id)
+                    nd,np=deserialize(ns.payload)
+                    boundary=boundary_report(last['data'],last['codes'],nd,codes_for(s,nv.id),prefs=np,work_policy=ns.work_policy)
+                    if boundary['errors']:raise BoundaryConflict('Lịch năm mới không khớp tháng kế tiếp đang áp dụng.',{k:boundary[k] for k in ('left','right','errors','hard_pending')})
         if is_cancelled():
             raise Cancelled()
         with sessions.begin() as s:

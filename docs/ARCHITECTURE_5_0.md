@@ -91,6 +91,12 @@ Với tổng trọng số W, trọng số người i là w_i và tổng ca T, đ
 
 `year_service.py` chụp tất cả tháng hiện có của kế hoạch và frontier với một revision. BALANCE dùng đường lưu và duyệt nguyên gói của cascade, source BALANCE, giữ V0. Lịch ACTUAL/PUBLISHED, ngày đã bắt đầu, locks và phần trước `balance_from_month` cố định. Pending APPROVED phải REPAIR trước. ANNUAL mặc định dành 40% tổng ngân sách cho cùng bộ cân năm sau bước dựng lịch và trước transaction lưu V0; reset proof tháng sau khi thay mã và ghi riêng before/after. Cách cân cũ trong annual_fairness.py chỉ dùng khi explicit `annual_balance: false`.
 
+## Clear năm
+
+`year_clear.py` lấy phạm vi tất cả PlanningMonth/AnnualPlan cùng năm, kiểm tra revision và các trạng thái được bảo vệ. Transaction đặt SQLite write reservation trước online backup để snapshot sao lưu khớp trạng thái sắp dọn. Chỉ sau khi backup thành công mới tăng revision, bỏ current/baseline pointers, mở khóa kế hoạch, bỏ locks/lịch sử dẫn xuất đang được dựng lại và chuyển APPLIED về APPROVED kèm RequestRevision. Giữ nguyên lịch sử trước tháng đầu, mọi bảng input và các bảng schedule/snapshot bất biến; không bỏ trigger. Audit lưu pointers cũ, IDs lịch, job và đường dẫn backup. Lần Clear tiếp theo nhận diện tập ID đã lưu trữ để trả no-op khi năm vẫn trống.
+
+Job SUCCEEDED thuộc năm hoặc gói nháp có result.version_ids chạm năm được lưu ARCHIVED; job năm khác chỉ có snapshot tham chiếu năm này vẫn giữ nguyên. Revision mới chặn duyệt bản nháp cũ. Giao diện xem preview rồi mới gửi year/revision; sau Clear tải calendar không chỉ định lịch cũ và cho phép chạy ANNUAL lại. Worker ANNUAL luôn đối chiếu frontier đã áp dụng sau tháng cuối trước transaction lưu, gồm cả đường không chạy cân năm.
+
 ## API
 
 - `/api/import`, `/api/health`, `/api/months/{id}/calendar`.

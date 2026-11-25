@@ -89,6 +89,10 @@ class ConfirmInput(Revision):
     status: Literal['PLANNED', 'PUBLISHED', 'ACTUAL'] = 'PLANNED'
 
 
+class YearClearInput(Revision):
+    year: int = Field(ge=1900,le=2200)
+
+
 class CellEdit(StrictModel):
     employee_id: int
     day: date
