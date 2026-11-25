@@ -94,6 +94,31 @@ class DBCase(unittest.TestCase):
         return data,codes,mid
 
 class DatabaseTests(DBCase):
+    def test_fresh_boundary_conflict_is_not_stale_real_solver(self):
+        with self.service.sessions.begin() as s:
+            left,lc=fixture(2028,1);right,rc=fixture(2028,2)
+            mid=seed_month(s,left,lc);seed_month(s,right,rc)
+        request=self.service.request_batch(RequestBatch(revision=1,employee_ids=[1],from_date=date(2028,1,29),to_date=date(2028,1,31),code='1'))
+        job=self.service.enqueue(JobInput(revision=request['revision'],mode='FRESH',month_id=mid,budget=20))
+        execute(self.engine,job['id'])
+        result=self.service.job(job['id'])
+        self.assertEqual(result['status'],'BOUNDARY_CONFLICT',result['error'])
+        self.assertIn('biên tháng',result['stage'])
+        self.assertEqual(result['result']['version_ids'],[])
+        self.assertTrue(any(f['rule_id']=='B01' for f in result['result']['boundary_conflict']['findings']))
+        with self.service.sessions() as s:
+            self.assertEqual(s.scalar(select(func.count()).select_from(m.ScheduleVersion)),2)
+            self.assertEqual(revision(s),request['revision'])
+
+    def test_legacy_boundary_status_is_normalized_without_mutation(self):
+        _,_,mid=self.seed()
+        job=self.service.enqueue(JobInput(revision=1,mode='FRESH',month_id=mid,budget=1))
+        with self.service.sessions.begin() as s:
+            raw=s.get(m.SolverRun,job['id']);raw.status='STALE';raw.error='Lịch mới gây lỗi biên tháng 2028-01 / 2028-02.'
+        self.assertEqual(self.service.job(job['id'])['status'],'BOUNDARY_CONFLICT')
+        self.assertEqual(self.service.jobs()[0]['status'],'BOUNDARY_CONFLICT')
+        with self.service.sessions() as s:self.assertEqual(s.get(m.SolverRun,job['id']).status,'STALE')
+
     def test_sqlite_settings_and_foreign_keys(self):
         with self.engine.connect() as c:
             self.assertEqual(c.exec_driver_sql('PRAGMA foreign_keys').scalar(),1)

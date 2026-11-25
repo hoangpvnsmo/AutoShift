@@ -83,6 +83,8 @@ Toàn bộ tháng và biên được kiểm tra trước khi lưu các bản nh�
 
 Trạng thái Validator tách biệt với chứng minh tối ưu. `INCOMPLETE` / hard pending không được hiển thị là hợp lệ hoàn toàn. Lịch minh họa hiện tại còn `B_WORK_TIME` và lịch sử E05 thiếu; có thể duyệt lịch dự kiến với nhãn này, **chưa đủ điều kiện PUBLISHED/ACTUAL**.
 
+Job `BOUNDARY_CONFLICT` nghĩa là đã tìm được lịch cho tháng đang giải, nhưng nó không khớp lịch tháng liền kề đã xác nhận (ví dụ T12 thay đổi làm T1 bị quá chuỗi đêm hoặc thiếu giờ nghỉ). Phương án này không được lưu/áp dụng. `STALE` dành cho đầu vào hoặc phiên bản áp dụng đổi trong khi giải. Những job cũ gán nhầm STALE cho lỗi biên được hiển thị lại đúng loại, không sửa lịch hay bản ghi lịch sử gốc. Dòng `preferences FEASIBLE (2,) -> (1,)` là thông báo giảm điểm phạt nguyện vọng, không phải lỗi cứng.
+
 Màn hình Cấu hình có form khai báo giờ CT/DT/T và ngưỡng nghỉ phi ca **do người quản lý xác nhận**; BKD luôn nghỉ. Chức năng được ghi rõ **chỉ phục vụ Validator, chưa đưa vào mô hình Solver**. Không có giờ mặc định hoặc ngưỡng 8 giờ mặc định. Thay đổi tạo rule profile mới, snapshot cũ không biến đổi. Solver có thể bị từ chối bởi Validator nếu chính sách giờ phi ca phát hiện vi phạm; chưa có cơ chế tự tìm phương án để khắc phục các rule giờ này.
 
 Các tham số JSON cũ chưa có hiệu lực độc lập (`prefer_staffing`, các công tắc ADMIN riêng...) vẫn được giữ để tương thích, không đưa lên giao diện như công tắc đang hoạt động.

@@ -8,7 +8,7 @@ from sqlalchemy.orm import sessionmaker
 from core.data.calendar_utils import month_days
 from core.validation.credit_checks import demand_requirements
 from . import models as m
-from .domain import Conflict, Unsupported, deserialize, history_gaps, now, CODES, LOCAL_TZ
+from .domain import Conflict, BoundaryConflict, Unsupported, deserialize, history_gaps, now, CODES, LOCAL_TZ
 from .db import bump, revision, audit
 from .repository import require, load_month, codes_for, snapshot, save_version, validation_for
 from .validation import validate_month, boundary_report, frozen_cell
@@ -20,6 +20,16 @@ def row_dict(row):
         if isinstance(value,datetime):
             result[key]=(value if value.tzinfo else value.replace(tzinfo=timezone.utc)).astimezone(LOCAL_TZ)
     return result
+
+
+def job_dict(job):
+    data=row_dict(job)
+    # Older workers classified every Conflict as STALE. Correct the displayed
+    # classification without rewriting historical job or schedule records.
+    if data['status']=='STALE' and (data.get('error') or '').startswith('Lịch mới gây lỗi biên tháng '):
+        data['status']='BOUNDARY_CONFLICT'
+        data['stage']='Không lưu: lịch mới xung đột với lịch tháng liền kề.'
+    return data
 
 
 class Service:
@@ -281,7 +291,10 @@ class Service:
             oc = codes_for(s, v.id)
             r = boundary_report(od, oc, data, codes, prefs=(), work_policy=None) if side=='left' else boundary_report(data, codes, od, oc, prefs=op, work_policy=snap.work_policy)
             if r['errors']:
-                raise Conflict('Lịch mới gây lỗi biên tháng '+r['left']+' / '+r['right']+'. Cần REPAIR nhiều tháng; trường hợp này chưa hỗ trợ, không lưu một phần.')
+                findings=[f for rule in r['report']['rules'] for f in rule['findings'] if f['severity']=='ERROR']
+                details={k:r[k] for k in ('left','right','verdict','errors','hard_pending')}
+                details['findings']=findings
+                raise BoundaryConflict('Lịch mới gây lỗi biên tháng '+r['left']+' / '+r['right']+'. Cần xử lý lịch cả hai tháng; hiện chưa hỗ trợ REPAIR liên kết nhiều tháng. Không lưu phương án mới.',details)
             reports.append(r)
         return reports
 
@@ -379,8 +392,8 @@ class Service:
 
     def jobs(self):
         with self.sessions() as s:
-            return [row_dict(j) for j in s.scalars(select(m.SolverRun).order_by(m.SolverRun.created_at.desc()).limit(100))]
+            return [job_dict(j) for j in s.scalars(select(m.SolverRun).order_by(m.SolverRun.created_at.desc()).limit(100))]
 
     def job(self, job_id):
         with self.sessions() as s:
-            return row_dict(require(s, m.SolverRun, job_id))
+            return job_dict(require(s, m.SolverRun, job_id))

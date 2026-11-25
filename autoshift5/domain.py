@@ -16,6 +16,13 @@ class Conflict(ValueError):
     """An explicit revision or business conflict, never silently overwritten."""
 
 
+class BoundaryConflict(Conflict):
+    """A candidate violates an existing neighboring month, not an input revision."""
+    def __init__(self, message, details=None):
+        super().__init__(message)
+        self.details=details
+
+
 class Unsupported(ValueError):
     """A case that must fail closed until implemented correctly."""
 

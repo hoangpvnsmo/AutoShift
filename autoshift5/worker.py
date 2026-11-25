@@ -17,7 +17,7 @@ from core.data.calendar_utils import month_days
 from validator.quality import score_vector
 from . import models as m
 from .db import make_engine, ROOT, revision, audit
-from .domain import deserialize, serialize, numeric, now, history_length, history_gaps, Conflict
+from .domain import deserialize, serialize, numeric, now, history_length, history_gaps, Conflict, BoundaryConflict
 from .repository import require, codes_for, save_version, snapshot, application_sources
 from .repair import repair_schedule, RepairOptions
 from .validation import boundary_report, validate_month
@@ -235,8 +235,11 @@ def execute(engine, job_id):
     except Exception as exc:
         with sessions.begin() as s:
             j = require(s, m.SolverRun, job_id)
-            j.status = 'STALE' if isinstance(exc, Conflict) else exc.status if isinstance(exc,NoSolution) else 'FAILED'
+            j.status = 'BOUNDARY_CONFLICT' if isinstance(exc,BoundaryConflict) else 'STALE' if isinstance(exc, Conflict) else exc.status if isinstance(exc,NoSolution) else 'FAILED'
             j.error, j.finished_at = str(exc), now()
+            j.stage='Không lưu: xung đột biên tháng.' if isinstance(exc,BoundaryConflict) else str(exc)[:150]
+            if isinstance(exc,BoundaryConflict):
+                j.result={'version_ids':[],'boundary_conflict':exc.details}
             j.log = (j.log+'\n'+traceback.format_exc())[-200000:]
 
 
