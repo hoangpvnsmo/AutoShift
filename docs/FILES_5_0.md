@@ -1,5 +1,7 @@
 # File m?i v? s?a cho AutoShift 5.0
 
+Repair có cân bằng: `autoshift5/repair_balance_context.py` chụp số ca ngoài vùng; `repair_balance.py` hiệu chỉnh có cap ô đổi/nghỉ và kiểm tra độc lập. Tích hợp trong cả `worker.py` và `cascade_worker.py`, hai đường enqueue, schema và `App.vue`. Component `RepairBalanceSummary.vue` và tests; regression `tests/test_repair_balance.py`.
+
 Clear năm: `autoshift5/year_clear.py` (preview, backup và reset logic giữ lịch sử), DTO/routes trong `schemas.py`/`api.py`, kiểm tra biên sau ANNUAL trong `worker.py`, `frontend/src/components/ClearYearDialog.vue` và tích hợp trong `App.vue`. Test: `tests/test_year_clear.py`, `ClearYearDialog.test.ts`; hợp đồng `docs/openapi-5.0.json` được cập nhật.
 
 Gi? nguy?n core/, validator/, CLI, input, rules v? l?ch/checkpoint g?c.

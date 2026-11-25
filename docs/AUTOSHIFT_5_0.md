@@ -71,6 +71,16 @@ FAST tìm vùng ngày yêu cầu rồi ±1, ±3, ±7 và toàn phạm vi. OPTIMA
 
 Ca 1 ngày D bắt đầu lúc 22:00 ngày D−1 theo cấu hình gốc. Không đổi hoặc thêm ca đã bắt đầu. Khi giờ phi ca chưa đủ, khóa bảo thủ từ đầu ngày; BKD không làm việc. Không áp ngưỡng nghỉ 8 giờ cho CT/DT/T. Khi duyệt, thời điểm hiện tại và các ô khóa được kiểm tra lại để chống trường hợp một ca bắt đầu trong lúc Solver chạy.
 
+#### Repair có cân bằng trong giới hạn ô đổi
+
+Mặc định bật **Cân bằng ca khi Repair**, được thêm tối đa **2 ô cho toàn gói** so với phương án Repair gốc. Có thể chọn 0, 1 hoặc 2; giới hạn cứng số ô đổi do người quản lý đặt vẫn được ưu tiên. Tắt tùy chọn để dùng nguyên luồng R1–R8 cũ. API dùng `repair_balance: true` và `repair_balance_extra: 2` trong `POST /api/jobs`.
+
+Khi bật, dành khoảng 65% ngân sách cho Repair gốc và tối đa 35% để hiệu chỉnh. Bước sau dùng nghiệm gốc làm dự phòng, giữ nguyên phạm vi tháng đã giải, biên phải, ô khóa, phần đã thực hiện, requests và các giới hạn ADMIN/công vượt. Tổng số nghỉ ngắn mới và điểm tăng nguồn lực R4 không được lớn hơn phương án Repair gốc. Phần cân có thể dùng các ngày khác trong khoảng người quản lý đã cho phép, kể cả khi FAST tìm được nghiệm gốc ở một vùng ngày hẹp.
+
+Trong dải số ô được phép, ưu tiên độ lệch tổng ca các tháng đã có lịch trong năm, tổng ca tháng đang sửa, ca đêm năm và ca đêm tháng; mỗi nhóm xét lệch lớn nhất rồi tổng độ lệch. Trọng số theo ngày còn lại sau OFF/CT/DT/BKD và tỷ lệ công chuẩn; mục tiêu ca đêm chỉ phân cho người có quyền đêm. Các tháng ngoài vùng sửa đóng góp thống kê cố định và không được sửa. Tháng chưa có lịch không được điền OFF. Sau công bằng mới xét số ô, số tháng và các tầng ổn định còn lại. E01–E06 được tính lại độc lập, không cam kết giữ nguyên các điểm cũ ngoài các giới hạn đã nêu.
+
+Chỉ nhận nghiệm đã được kiểm tra và đối chiếu điểm. Nếu không cải thiện công bằng thì không tiêu thêm ô; hết thời gian hoặc chưa hỗ trợ điều kiện cân thì giữ phương án Repair gốc và báo rõ. Bảng kết quả so lịch cũ, Repair gốc và sau cân theo tổng ca/ca đêm, kèm số ô và nghỉ ngắn. Khi tiêu thêm ô, kết quả không gắn chứng minh R1 nhỏ nhất; chứng nhận của Repair gốc được giữ riêng. Nếu số ô vẫn bằng mốc đã chứng minh tối thiểu, chứng minh R1 có thể được giữ, không suy ra tối ưu toàn bộ chất lượng hoặc công bằng.
+
 ### Sửa liên kết các tháng sau
 
 Trong FRESH hoặc REPAIR, bật **Cho phép sửa liên kết các tháng sau** (giao diện bật sẵn), đặt số tháng sau được phép sửa, tối đa 24. Chỉ lấy chuỗi tháng liên tiếp đã có lịch áp dụng; không tự tạo lịch cho tháng còn trống. API dùng `cascade: true, cascade_months: 12`; mặc định API là false để tương thích ứng dụng cũ.

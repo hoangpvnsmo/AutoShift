@@ -2047,6 +2047,18 @@
             "title": "Repair Mode",
             "default": "FAST"
           },
+          "repair_balance": {
+            "type": "boolean",
+            "title": "Repair Balance",
+            "default": true
+          },
+          "repair_balance_extra": {
+            "type": "integer",
+            "maximum": 2.0,
+            "minimum": 0.0,
+            "title": "Repair Balance Extra",
+            "default": 2
+          },
           "as_of": {
             "anyOf": [
               {

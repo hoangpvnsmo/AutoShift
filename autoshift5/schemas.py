@@ -70,6 +70,8 @@ class JobInput(Revision):
     budget: float = Field(default=60, gt=0, le=86400)
     passes: int = Field(default=1, ge=1, le=20)
     repair_mode: Literal['FAST', 'OPTIMAL'] = 'FAST'
+    repair_balance: bool = True
+    repair_balance_extra: int = Field(default=2,ge=0,le=2)
     as_of: AwareDatetime | None = None
     allowed_from: date | None = None
     allowed_until: date | None = None

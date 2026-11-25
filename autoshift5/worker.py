@@ -106,7 +106,8 @@ def execute(engine, job_id):
                 with sessions() as s:
                     requests = [require(s, m.Request, rid) for rid in options.get('request_ids', [])]
                     cells = {(r.employee_id, r.day) for r in requests}
-                raw_opts = dict(as_of=datetime.fromisoformat(options['as_of']), budget=budget,
+                balance_repair=options.get('repair_balance',True)
+                raw_opts = dict(as_of=datetime.fromisoformat(options['as_of']), budget=budget*.65 if balance_repair else budget,
                     mode=options['repair_mode'], max_changes=options.get('max_changes'), no_admin_increase=options['no_admin_increase'],
                     no_overtime_increase=options['no_overtime_increase'], disabled_layers=tuple(options.get('disabled_layers', [])),
                     published=baseline_meta['status']=='PUBLISHED',
@@ -128,6 +129,19 @@ def execute(engine, job_id):
                         j = require(s, m.SolverRun, job_id)
                         j.status, j.result, j.finished_at = r.status, {'attempts': r.attempts, 'version_ids': []}, now()
                     return
+                if balance_repair:
+                    from .cascade_model import CascadeFrame
+                    from .repair_balance_context import right_frame
+                    from .repair_balance import refine_repair,balanced_proof
+                    with sessions() as s:right=right_frame(s,data)
+                    frame=CascadeFrame(spec['month_id'],data,prefs,baseline,baseline_id,status=baseline_meta['status'],
+                        locks=tuple(locks),annual=annual_codes,work_policy=spec['policy'])
+                    entries,_,metrics,balance=refine_repair([frame],right,r.codes,RepairOptions(**raw_opts),
+                        context=options.get('repair_balance_context'),extra=options.get('repair_balance_extra',2),
+                        deadline=min(deadline,perf_counter()+budget*.35),emit=emit,cancelled=is_cancelled,
+                        direct_ids={i for i,d in cells},boundary_check=check_boundary)
+                    r.codes,r.report,r.metrics=entries[0]['codes'],entries[0]['report'],{**entries[0]['metrics'],'repair_balance':balance}
+                    r.proof=balanced_proof(r.proof,balance)
                 codes, report, proof, repair = r.codes, r.report, r.proof, {**r.metrics, 'attempts': r.attempts}
                 quality = score_vector(report)
             else:
@@ -284,6 +298,8 @@ def execute(engine, job_id):
                             boundaries=[r['boundary'] for r in results if r['boundary']], elapsed_budget=options['budget']-(deadline-perf_counter()),
                             publication='DRAFT_ONLY')
             if balance_report:j.result['annual_balance']=balance_report
+            if mode=='REPAIR' and results[0]['repair'].get('repair_balance'):
+                j.result['repair_balance']=results[0]['repair']['repair_balance']
             audit(s, 'SOLVER_RESULT', job_id, {'version_ids': ids})
     except Cancelled:
         with sessions.begin() as s:

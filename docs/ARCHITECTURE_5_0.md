@@ -71,6 +71,12 @@ Vector REPAIR có 8 tầng: R4 chứa hai thành phần; R8 chứa chín vector 
 
 ## Ranh giới tháng
 
+`repair_balance_context.py` chụp ledger gọn của các tháng có lịch trong những năm được Repair, cùng revision của job: ID phiên bản, số ca/đêm, ngày có dữ liệu và trọng số. Snapshot tháng gốc vẫn là nguồn của requests/rules/locks. Thay đổi đầu vào hoặc lịch ở tháng thống kê ngoài vùng cũng làm revision đổi và chặn lưu/duyệt stale.
+
+`repair_balance.py` áp dụng sau Repair một tháng hoặc liên tháng. Mô hình LinkedModel mỏng không dựng R8, dùng nghiệm Repair đã kiểm tra làm warm start đầy đủ, đặt cap số ô bằng min(mốc + extra, max_changes) và giữ cận R4/R5 của mốc. Các tổng ca ngoài vùng là hằng số; tổng ca đêm được suy từ coverage cố định và tổng SHIFT chỉ thay đổi theo hỗ trợ ADMIN. Giảm việc đưa lại hàng trăm x vào mỗi biểu thức độ lệch. Bộ đếm độc lập đối chiếu mọi thành phần CP và kiểm tra lại toàn tháng/biên trước khi nhận. Presolve cho lượt tối ưu ngắn được tắt để ghi nhận ngay incumbent đầy đủ; thời gian chia cho các tầng công bằng, theo cùng deadline tổng.
+
+Worker dành 65% cho sửa ổn định và tối đa 35% cho cân; fallback không đổi lịch khi lượt cân không cải thiện hoặc hết thời gian. Phạm vi tháng không tự mở thêm ở lượt cân. `stable_repair_proof` lưu riêng chứng minh mốc; không giữ các tầng R2–R8 của mốc như chứng minh cho phương án đã cân. Top-level R1 chỉ giữ khi số ô cuối bằng số ô mốc đã chứng minh. Kết quả và validation chứa `repair_balance`, hiển thị bằng `RepairBalanceSummary.vue`.
+
 Chiều dài lịch sử là max(6, giới hạn đêm, giới hạn ngày trực, lookback giờ ca). Loader Excel cũ vẫn giữ quy ước gốc 5 ngày ở dữ liệu hiện tại để không đổi fingerprint; tầng 5.0 báo riêng E05 chưa đủ lịch sử. ANNUAL yêu cầu đủ lịch sử từ đầu và truyền mã đầy đủ giữa các tháng. Validator biên đọc toàn tháng sau với lịch sử thay từ tháng trước dự kiến, kiểm tra A07, B01–B04, E04/E05 và báo pending.
 
 REPAIR một tháng kiểm tra cả tháng, tháng trước đã có và tháng sau đã có. `cascade: true` bật CP-SAT ghép nhiều tháng cho FRESH/REPAIR. `cascade_model.py` dùng chung CpModel, tái sử dụng các builder nghiệp vụ tháng hiện hành; A07, chuỗi B01–B04 và mục tiêu E04/E05 dùng biến của tháng trước thay cho lịch sử hằng. Mỗi vùng có biên phải cố định bằng lịch đã xác nhận và snapshot cũ của tháng ngoài vùng. Không suy diễn OFF cho lịch sử thiếu.

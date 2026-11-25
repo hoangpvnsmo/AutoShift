@@ -393,9 +393,13 @@ class Service:
                                request_ids=applied_request_ids, locks=locks, options=payload.model_dump(mode='json'))
                 snap = snapshot(s, month.id, context=context)
                 snapshots.append(snap.id)
+            balance_context={}
+            if payload.mode=='REPAIR' and payload.repair_balance:
+                from .repair_balance_context import capture_context
+                balance_context={'repair_balance_context':capture_context(s,months)}
             run = m.SolverRun(id=str(uuid4()), scope_key='workspace', month_id=payload.month_id,
                               annual_plan_id=payload.annual_plan_id, mode=payload.mode, status='QUEUED', revision=revision(s),
-                              options={**payload.model_dump(mode='json'), 'baseline_version_id': baseline}, snapshots=snapshots)
+                              options={**payload.model_dump(mode='json'), 'baseline_version_id': baseline,**balance_context}, snapshots=snapshots)
             s.add(run)
             s.flush()
             audit(s, 'SOLVER_QUEUED', run.id, run.options)

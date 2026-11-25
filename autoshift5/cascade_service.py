@@ -53,6 +53,9 @@ def enqueue_cascade(service,payload):
             snaps.append(snapshot(s,month.id,context=context).id)
         options={**payload.model_dump(mode='json'),'as_of':(payload.as_of or now()).isoformat(),
             'baseline_version_id':root.current_version_id,'cascade_job_id':job_id}
+        if payload.mode=='REPAIR' and payload.repair_balance:
+            from .repair_balance_context import capture_context
+            options['repair_balance_context']=capture_context(s,months)
         job=m.SolverRun(id=job_id,scope_key='workspace',month_id=root.id,mode=payload.mode,
             status='QUEUED',revision=revision(s),options=options,snapshots=snaps)
         s.add(job);s.flush();audit(s,'CASCADE_QUEUED',job.id,options)

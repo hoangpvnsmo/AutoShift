@@ -1,5 +1,7 @@
 """Durable linked-month job: solve outside transactions, save all or none."""
 from datetime import date, datetime
+from dataclasses import replace
+from time import perf_counter
 import traceback
 from sqlalchemy import update
 from sqlalchemy.orm import sessionmaker
@@ -14,7 +16,7 @@ from .cascade import solve_cascade
 
 def execute_cascade(engine,job_id):
     from .worker import Cancelled, NoSolution
-    sessions=sessionmaker(engine,expire_on_commit=False)
+    started=perf_counter();sessions=sessionmaker(engine,expire_on_commit=False)
     try:
         with sessions.begin() as s:
             job=require(s,m.SolverRun,job_id)
@@ -68,7 +70,18 @@ def execute_cascade(engine,job_id):
             from .year_balance import balance_year
             result=balance_year(frames,frontier,options,window_months=opts.get('balance_window_months',3),emit=emit,cancelled=cancelled)
         else:
-            result=solve_cascade(frames,frontier,options,root_fresh=mode=='FRESH',direct_ids=direct,minimum_size=minimum_size,emit=emit,cancelled=cancelled)
+            balanced=mode=='REPAIR' and opts.get('repair_balance',True)
+            stable_options=replace(options,budget=options.budget*.65) if balanced else options
+            result=solve_cascade(frames,frontier,stable_options,root_fresh=mode=='FRESH',direct_ids=direct,minimum_size=minimum_size,emit=emit,cancelled=cancelled)
+            if balanced and result.entries and result.status!='CANCELLED' and not cancelled():
+                from .repair_balance import refine_repair,balanced_proof
+                count=len(result.entries);right=frames[count] if count<len(frames) else frontier
+                flat={k:c for e in result.entries for k,c in e['codes'].items()}
+                entries,boundaries,metrics,report=refine_repair(frames[:count],right,flat,options,
+                    context=opts.get('repair_balance_context'),extra=opts.get('repair_balance_extra',2),
+                    deadline=min(started+options.budget,perf_counter()+options.budget*.35),emit=emit,cancelled=cancelled,direct_ids=direct)
+                result.entries,result.boundaries,result.metrics=entries,boundaries,metrics
+                result.proof=balanced_proof(result.proof,report)
         if result.status=='CANCELLED' or cancelled():raise Cancelled()
         if not result.entries:raise NoSolution(result.status,'Không tìm được gói sửa hợp lệ; không lưu hoặc đổi lịch áp dụng.')
         with sessions.begin() as s:
@@ -95,6 +108,7 @@ def execute_cascade(engine,job_id):
             j.status,j.finished_at,j.stage='SUCCEEDED',now(),'Đã lưu gói bản nháp liên kết; chờ duyệt cùng nhau'
             j.result=dict(cascade=True,version_ids=ids,month_summaries=summaries,repair=result.metrics,proof=result.proof,
                 attempts=result.attempts,boundaries=result.boundaries,publication='DRAFT_ONLY',confirmed=False)
+            if result.metrics.get('repair_balance'):j.result['repair_balance']=result.metrics['repair_balance']
             if mode=='BALANCE':j.result['annual_balance']=result.metrics['annual_balance']
             audit(s,'CASCADE_RESULT',job_id,{'version_ids':ids,'changed_cells':result.metrics['changed_cells']})
     except Exception as exc:
