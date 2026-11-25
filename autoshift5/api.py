@@ -176,6 +176,11 @@ def create_app(db_path=None, *, start_workers=True):
     @app.post('/api/jobs/{job_id}/cancel',response_model=dto.JobView)
     def cancel(job_id:str): return manager.cancel(job_id)
 
+    @app.post('/api/jobs/{job_id}/confirm')
+    def confirm_linked(job_id:str,payload:dto.ConfirmInput):
+        from .cascade_service import confirm_cascade
+        return confirm_cascade(service,job_id,payload)
+
     @app.get('/api/jobs/{job_id}/events')
     async def events(job_id:str,request:HttpRequest):
         service.job(job_id)
@@ -201,8 +206,13 @@ def create_app(db_path=None, *, start_workers=True):
             codes=codes_for(s,v.id)
             from validator.quality import validate_quality
             report=validate_quality(data,codes,prefs=prefs,work_policy=snap.work_policy)
-            try: boundaries=service._check_neighbors(s,data,codes)
-            except Conflict as exc: boundaries=[{'verdict':'ERROR','message':str(exc)}]
+            linked=snap.payload.get('_context',{}).get('cascade_job_id')
+            if linked and v.status=='DRAFT':
+                job=require(s,m.SolverRun,linked)
+                boundaries=(job.result or {}).get('boundaries',[])
+            else:
+                try: boundaries=service._check_neighbors(s,data,codes)
+                except Conflict as exc: boundaries=[{'verdict':'ERROR','message':str(exc)}]
             return {**report.to_dict(),'history_gaps':len(__import__('autoshift5.domain',fromlist=['history_gaps']).history_gaps(data)),
                     'boundaries':boundaries,'proof':v.proof,'scope':'SNAPSHOT'}
 

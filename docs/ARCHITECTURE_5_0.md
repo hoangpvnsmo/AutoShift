@@ -65,7 +65,7 @@ Assignments, snapshots, rule profiles và schedule_changes không UPDATE/DELETE.
 
 Snapshot chứa đủ MonthData, preferences, giờ phi ca cho Validator, source hashes, phi?n b?n Python/th? vi?n, revision, baseline/current version, danh sách yêu cầu, locks và toàn bộ tùy chọn job. Full baseline là những assignment bất biến được tham chiếu bởi ID version. Loader mới ưu tiên lịch trước tháng đã xác nhận khi nó tồn tại; snapshot lịch sử không bị thay đổi.
 
-FRESH/RESUME gọi engine 4.9 với checkpoint trong `data/jobs/<job-id>/`. Chứng minh phải qua fingerprint 4.9, đối chiếu điểm và kiểm tra nghiệm; đổi source ứng dụng làm proof prefix của bản DB về 0. REPAIR không dùng prefix RESUME, không khóa điểm chất lượng baseline và không truy cập checkpoint gốc.
+FRESH không liên kết/RESUME gọi engine 4.9 với checkpoint trong `data/jobs/<job-id>/`. Chứng minh phải qua fingerprint 4.9, đối chiếu điểm và kiểm tra nghiệm; đổi source ứng dụng làm proof prefix của bản DB về 0. REPAIR và FRESH liên kết không dùng prefix RESUME, không khóa điểm chất lượng baseline và không truy cập checkpoint gốc.
 
 Vector REPAIR có 8 tầng: R4 chứa hai thành phần; R8 chứa chín vector điểm tháng. Từng thành phần là một lần tối ưu có giới hạn thời gian và được khóa trước tầng sau. Independent Validator tính lại mã công, nghỉ ngắn, số ô/người, V0 và chất lượng; sai điểm bị từ chối. Proof R1 chỉ gắn với toàn phạm vi cho phép hoặc cận 0 đã đạt, tách biệt với Validator INCOMPLETE.
 
@@ -73,14 +73,18 @@ Vector REPAIR có 8 tầng: R4 chứa hai thành phần; R8 chứa chín vector 
 
 Chiều dài lịch sử là max(6, giới hạn đêm, giới hạn ngày trực, lookback giờ ca). Loader Excel cũ vẫn giữ quy ước gốc 5 ngày ở dữ liệu hiện tại để không đổi fingerprint; tầng 5.0 báo riêng E05 chưa đủ lịch sử. ANNUAL yêu cầu đủ lịch sử từ đầu và truyền mã đầy đủ giữa các tháng. Validator biên đọc toàn tháng sau với lịch sử thay từ tháng trước dự kiến, kiểm tra A07, B01–B04, E04/E05 và báo pending.
 
-REPAIR một tháng kiểm tra cả tháng, tháng trước đã có và tháng sau đã có. Nếu cần đổi cả hai tháng để thỏa rule, từ chối rõ ràng vì chưa có mô hình sửa liên kết. Không tự lấy OFF hoặc bỏ các ràng buộc để vượt qua biên.
+REPAIR một tháng kiểm tra cả tháng, tháng trước đã có và tháng sau đã có. `cascade: true` bật CP-SAT ghép nhiều tháng cho FRESH/REPAIR. `cascade_model.py` dùng chung CpModel, tái sử dụng các builder nghiệp vụ tháng hiện hành; A07, chuỗi B01–B04 và mục tiêu E04/E05 dùng biến của tháng trước thay cho lịch sử hằng. Mỗi vùng có biên phải cố định bằng lịch đã xác nhận và snapshot cũ của tháng ngoài vùng. Không suy diễn OFF cho lịch sử thiếu.
+
+`cascade.py` mở vùng từ tháng gốc đến số tháng được phép; kiểm tra độc lập mọi nghiệm, toàn tháng và biên phải. Các vector mã đầy đủ, nghỉ ngắn mới theo lịch sử trước/sau thực tế và chất lượng đều được tính lại ngoài Solver. FRESH chỉ phạt thay đổi ở tháng sau; REPAIR phạt cả tháng gốc. Số tháng đổi là tiêu chí phụ sau R1. FAST dừng vùng khả thi đầu tiên; OPTIMAL mở rộng trong ngân sách. Chứng minh R1 tách phạm vi, cận 0 và chứng nhận toàn horizon; không suy ra tối ưu chất lượng. Thread giám sát hủy gọi stop_search trong lúc CP-SAT đang giải.
+
+`cascade_service.py` chụp các snapshot cùng revision và frontier, chỉ lấy chuỗi tháng có lịch áp dụng liên tiếp. `cascade_worker.py` không giữ transaction trong lúc giải; lưu tất cả bản nháp trong một transaction sau khi kiểm tra revision, trạng thái job và toàn bộ current pointers. Snapshot kết quả chứa previous từ phương án liên kết. Duyệt gói kiểm tra lại toàn bộ mã, thời điểm ca, locks, revision, status, pointers và frontier, rồi thay current pointers đồng thời. Chặn duyệt hoặc sửa riêng thành viên DRAFT. V0 không thay đổi.
 
 ## API
 
 - `/api/import`, `/api/health`, `/api/months/{id}/calendar`.
 - `/api/employees`, requests/batch/status/revisions, preferences, locks.
 - `/api/months/{id}/rules`, configuration, validation-work-policy (chỉ Validator).
-- `/api/jobs`, job detail, cancel, events (SSE).
+- `/api/jobs`, job detail, cancel, events (SSE), atomic linked-job confirm.
 - `/api/versions/compare`, validate, snapshot, edit, restore, confirm, export.
 - `/api/annual-plans`, plan statistics, atomic V0 confirm, annual/personal export.
 - `/api/audit`.

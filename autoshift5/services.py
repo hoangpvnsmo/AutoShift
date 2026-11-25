@@ -246,6 +246,9 @@ class Service:
         with self.sessions.begin() as s:
             bump(s, payload.revision)
             v = require(s, m.ScheduleVersion, version_id)
+            context=require(s,m.InputSnapshot,v.snapshot_id).payload.get('_context',{})
+            if context.get('cascade_job_id'):
+                raise Conflict('Bản nháp thuộc gói sửa liên kết. Duyệt toàn bộ gói trong kết quả Solver để tránh áp dụng một phần.')
             month = require(s, m.PlanningMonth, v.month_id)
             if v.status != 'DRAFT':
                 raise Conflict('Phiên bản đã xác nhận là bất biến. Khôi phục/chỉnh sửa bằng phiên bản con mới.')
@@ -294,7 +297,7 @@ class Service:
                 findings=[f for rule in r['report']['rules'] for f in rule['findings'] if f['severity']=='ERROR']
                 details={k:r[k] for k in ('left','right','verdict','errors','hard_pending')}
                 details['findings']=findings
-                raise BoundaryConflict('Lịch mới gây lỗi biên tháng '+r['left']+' / '+r['right']+'. Cần xử lý lịch cả hai tháng; hiện chưa hỗ trợ REPAIR liên kết nhiều tháng. Không lưu phương án mới.',details)
+                raise BoundaryConflict('Lịch mới gây lỗi biên tháng '+r['left']+' / '+r['right']+'. Bật “Cho phép sửa liên kết các tháng sau” khi chạy FRESH/REPAIR để tìm gói sửa. Không lưu phương án này.',details)
             reports.append(r)
         return reports
 
@@ -302,6 +305,8 @@ class Service:
         with self.sessions.begin() as s:
             bump(s, payload.revision)
             old = require(s, m.ScheduleVersion, version_id)
+            if require(s,m.InputSnapshot,old.snapshot_id).payload.get('_context',{}).get('cascade_job_id') and old.status=='DRAFT':
+                raise Conflict('Bản nháp liên kết cần giữ nguyên cả gói. Sửa yêu cầu và chạy lại gói trước khi duyệt.')
             if not restore and old.status != 'DRAFT':
                 raise Conflict('Chỉ chỉnh sửa ô trên bản nháp. Dùng khôi phục để tạo bản con từ lịch đã xác nhận.')
             data, prefs = load_month(s, old.month_id)
@@ -329,6 +334,9 @@ class Service:
             return dict(revision=revision(s), version_id=v.id)
 
     def enqueue(self, payload):
+        if payload.cascade:
+            from .cascade_service import enqueue_cascade
+            return enqueue_cascade(self,payload)
         from .repository import application_sources
         with self.sessions.begin() as s:
             if revision(s) != payload.revision:

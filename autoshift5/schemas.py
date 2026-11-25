@@ -77,6 +77,8 @@ class JobInput(Revision):
     no_admin_increase: bool = False
     no_overtime_increase: bool = False
     disabled_layers: list[Literal['R2', 'R3', 'R4', 'R5', 'R6', 'R7', 'R8']] = []
+    cascade: bool = False
+    cascade_months: int = Field(default=12, ge=0, le=24)
 
 
 class ConfirmInput(Revision):

@@ -35,6 +35,11 @@ class NoSolution(Exception):
 
 
 def execute(engine, job_id):
+    with sessionmaker(engine)() as check:
+        linked=require(check,m.SolverRun,job_id).options.get('cascade',False)
+    if linked:
+        from .cascade_worker import execute_cascade
+        return execute_cascade(engine,job_id)
     sessions = sessionmaker(engine, expire_on_commit=False)
     with sessions.begin() as s:
         job = require(s, m.SolverRun, job_id)

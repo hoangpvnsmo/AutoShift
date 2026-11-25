@@ -53,7 +53,7 @@ Workbook đang có 21 nhân sự, 651 ô trong tháng 12/2026; đây là dữ li
 
 ### FRESH và RESUME
 
-FRESH khởi tạo đường checkpoint riêng của job, độc lập checkpoint gốc. RESUME chọn phiên bản đầy đủ mã làm nghiệm nền. Chứng minh chỉ được tái dùng khi fingerprint core/input/objective tương thích, source ứng dụng còn khớp và nghiệm được kiểm tra lại. Chỉ khóa điểm đã chứng minh, không khóa toàn ma trận.
+Khi tắt sửa liên kết, FRESH khởi tạo đường checkpoint riêng của job, độc lập checkpoint gốc. RESUME chọn phiên bản đầy đủ mã làm nghiệm nền. Chứng minh chỉ được tái dùng khi fingerprint core/input/objective tương thích, source ứng dụng còn khớp và nghiệm được kiểm tra lại. Chỉ khóa điểm đã chứng minh, không khóa toàn ma trận. FRESH bật sửa liên kết dùng mô hình CP-SAT ghép tháng mô tả bên dưới, không dùng checkpoint hoặc nghiệm cũ của tháng gốc làm hint.
 
 Chọn Tối ưu tiếp và số lượt (mặc định tối đa 3), tổng thời gian. Dừng khi chứng minh xong hoặc hai lượt liên tiếp không cải thiện; luôn so theo vector mục tiêu tháng đang bật. Khi lịch nền có yêu cầu mới chưa áp dụng, RESUME yêu cầu dùng REPAIR. Nếu chủ động muốn xếp lại toàn bộ tháng, chọn **Lập lịch mới (FRESH)**; chế độ này được phép dùng tất cả yêu cầu đã duyệt mới nhất dù tháng đã có lịch.
 
@@ -70,6 +70,18 @@ R4 gồm tăng tổng công vượt và tăng ca ADMIN so với baseline; R5 đ�
 FAST tìm vùng ngày yêu cầu rồi ±1, ±3, ±7 và toàn phạm vi. OPTIMAL tiếp tục mở rộng trong ngân sách và so vector các nghiệm đã kiểm tra. Có thể giữ nghiệm ở vùng nhỏ nhưng nhận chứng minh R1 từ một lần giải toàn phạm vi có cùng cận; metadata mới lưu riêng phạm vi nghiệm và chứng nhận cận R1. FEASIBLE/vùng hẹp không tự trở thành chứng minh toàn cục. UNKNOWN và INFEASIBLE được phân biệt.
 
 Ca 1 ngày D bắt đầu lúc 22:00 ngày D−1 theo cấu hình gốc. Không đổi hoặc thêm ca đã bắt đầu. Khi giờ phi ca chưa đủ, khóa bảo thủ từ đầu ngày; BKD không làm việc. Không áp ngưỡng nghỉ 8 giờ cho CT/DT/T. Khi duyệt, thời điểm hiện tại và các ô khóa được kiểm tra lại để chống trường hợp một ca bắt đầu trong lúc Solver chạy.
+
+### Sửa liên kết các tháng sau
+
+Trong FRESH hoặc REPAIR, bật **Cho phép sửa liên kết các tháng sau** (giao diện bật sẵn), đặt số tháng sau được phép sửa, tối đa 24. Chỉ lấy chuỗi tháng liên tiếp đã có lịch áp dụng; không tự tạo lịch cho tháng còn trống. API dùng `cascade: true, cascade_months: 12`; mặc định API là false để tương thích ứng dụng cũ.
+
+Ví dụ xếp lại T12/2026: nhập/hủy BKD, CT và các yêu cầu cần thiết, chọn FRESH, bật sửa liên kết. Solver thử T12 mới với T1 giữ nguyên trước. Nếu không có nghiệm, mở vùng T12–T1 và giữ T2 cố định; tiếp tục thêm T2 khi cần, luôn kiểm tra với tháng ngay sau vùng sửa. Giữ lịch tháng trước, ô khóa, ACTUAL và ca đã bắt đầu. Không đổi âm thầm lịch đã công bố.
+
+FRESH ưu tiên giảm tổng số ô đổi ở các tháng **sau** tháng gốc; tháng gốc được xếp lại tự do theo yêu cầu mới. REPAIR tính cả tháng gốc. Sau tổng số ô đổi là số tháng thay đổi, các tầng ổn định R2–R7 và chất lượng R8 theo thứ tự. Mỗi thành phần được khóa trước khi tối ưu thành phần kế tiếp. Phạm vi ngày chỉ giới hạn tháng gốc; `max_changes` giới hạn tổng số ô thuộc mục tiêu ổn định. Những yêu cầu tương lai được chọn rõ ràng hoặc tháng có đầu vào nghiệp vụ mới trong horizon buộc vùng giải bao gồm tháng đó; không dùng snapshot cũ để bỏ qua yêu cầu đã duyệt mới. Nguyện vọng mềm mới không tự buộc mở rộng vùng.
+
+FAST dừng ở vùng nhỏ đầu tiên có nghiệm đã kiểm tra. OPTIMAL tiếp tục mở rộng trong ngân sách để có thể giảm tổng số ô đổi; không coi tên chế độ là bằng chứng tối ưu. Chỉ gắn chứng minh R1 khi đạt cận dưới 0 hoặc CP-SAT xác nhận tối ưu trên toàn vùng tháng đã cho phép, với tháng ngoài vùng giữ cố định. Metadata ghi rõ scope và chứng nhận; không chứng minh tối ưu chất lượng hoặc toàn năm.
+
+Kết quả hiển thị từng tháng, số ô đổi so với lịch áp dụng, số người và các biên đã kiểm tra. Chọn **Xem cũ / mới** để đối chiếu, rồi **Duyệt toàn bộ gói dự kiến**. API `POST /api/jobs/{job_id}/confirm` nhận revision, expected_current_version_id của tháng gốc và status. Tất cả phiên bản được lưu nháp trong cùng transaction và được duyệt trong cùng transaction khác. Chặn duyệt hoặc sửa riêng từng thành viên nháp; đổi yêu cầu rồi chạy lại gói để tìm phương án khác. Nếu revision, lịch áp dụng, khóa hoặc thời điểm bắt đầu ca thay đổi, toàn bộ lần duyệt bị từ chối. V0 năm và lịch sử cũ không bị ghi đè.
 
 ### ANNUAL
 
@@ -120,7 +132,7 @@ Chi tiết đo thực tế ở [TEST_REPORT_5_0.md](TEST_REPORT_5_0.md), kiến 
 
 Các giới hạn còn lại cần phân biệt rõ với tính năng đã hoàn tất:
 
-- **Chưa có Solver REPAIR liên kết nhiều tháng.** API từ chối yêu cầu REPAIR xuyên tháng và phương án gây lỗi cho tháng kế tiếp; không tự sửa một phần, không nới rule. Người dùng có thể nhập yêu cầu xuyên tháng để quản lý, nhưng chưa thể chạy một REPAIR chung cho chúng. Đây là giới hạn chức năng quan trọng của mốc G.
+- Sửa liên kết hiện chỉ mở về các tháng sau và yêu cầu chuỗi lịch áp dụng liên tiếp. Không tự sửa tháng trước hoặc đi qua tháng trống. Chưa hỗ trợ đổi giờ bắt đầu/kết thúc loại ca giữa các tháng trong cùng gói; thay đổi quyền/vai trò và ngưỡng nghỉ vẫn được đọc theo tháng. Giờ phi ca vẫn chỉ được kiểm tra bởi Validator, chưa được đưa vào Solver. Hết ngân sách có thể trả UNKNOWN hoặc bản nháp chưa chứng minh tối ưu.
 - Rolling Horizon chưa backtrack tháng trước khi một tháng sau không giải được; job thất bại an toàn và không lưu một phần. Chưa chứng minh tối ưu toàn năm.
 - Quyền/vai trò thay đổi theo tháng. Core chưa hỗ trợ đổi quyền giữa tháng; trường hợp đó bị từ chối rõ ràng. Nhân sự đã có lịch không bị xóa vật lý.
 - Chỉ một job Solver hoạt động trên workspace tại một thời điểm; khóa revision toàn CSDL hơi bảo thủ, có thể đánh STALE khi sửa một tháng khác. Hủy tiến trình riêng an toàn; chỉ giữ các phiên bản đã kiểm tra và commit, không cố giữ nghiệm giữa một lần CP-SAT chưa hoàn thành kiểm tra.

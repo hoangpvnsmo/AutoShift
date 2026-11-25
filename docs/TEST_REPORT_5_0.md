@@ -1,5 +1,9 @@
 # Báo cáo kiểm thử AutoShift 5.0
 
+Bổ sung sửa liên kết tháng: **7/7 test mới PASS**, 57,43 giây tính cả nạp runner (`artifacts/cascade-tests.log`); **45/45 test lớp 5.0 PASS**, 37,49 giây (`artifacts/cascade-v50-regression.log`). CP-SAT thật kiểm tra FRESH giảm thay đổi tháng sau đúng 2 ô, REPAIR tính cả tháng gốc, mở đến hai tháng sau và bảo vệ tháng thứ tư, max_changes, ô khóa, hủy, đối chiếu toàn vector E01–E06 qua biên, revision và duyệt nguyên gói qua HTTP. Duyệt riêng thành viên bị chặn, V0 và phiên bản cũ còn nguyên. TypeScript/Vite build và 3 component test PASS; 80/80 SHA-256 file được bảo vệ không đổi.
+
+Thử thêm trên **bản sao** CSDL revision 37 của người dùng: FRESH T12/2026 với yêu cầu mới tìm được phương án khớp T1/2027, **0 ô phải đổi ở các tháng sau**, biên không có lỗi cứng. Current pointers của toàn bộ tháng trong bản sao giữ nguyên; không áp dụng vào dữ liệu thật. Bản nháp vẫn INCOMPLETE do B_WORK_TIME và lịch sử E05 thiếu, không chứng minh tối ưu chất lượng tháng. Bằng chứng `artifacts/cascade-live-copy-result.log`, bản sao `artifacts/cascade_livecopy_20261125_095538.db` (không commit dữ liệu vận hành).
+
 Bổ sung phân loại lỗi biên: **45/45 test lớp 5.0 PASS** (`artifacts/boundary-status-tests.log`, 38,99 giây). Có test CP-SAT thật tạo tháng mới hợp lệ nội tháng nhưng vi phạm B01 ở tháng kế tiếp: job trả BOUNDARY_CONFLICT, không STALE và không lưu phiên bản. Test revision đổi vẫn trả STALE; nhãn lỗi cũ được chuẩn hóa khi đọc mà không ghi lại dữ liệu lịch sử. Frontend build/type-check và 3 component test PASS.
 
 Bổ sung luồng lập riêng tháng từ đầu: **43/43 test lớp 5.0 PASS** (`artifacts/monthly-fresh-tests.log`, 40,81 giây), gồm FRESH trên tháng đã có lịch với CT/BKD mới, bản cũ giữ nguyên, bản mới chờ duyệt và yêu cầu chỉ chuyển APPLIED sau duyệt. RESUME vẫn chặn yêu cầu mới để hướng tới REPAIR. TypeScript/Vite build và 3 component test cũng PASS sau cập nhật.
@@ -61,7 +65,7 @@ Báo cáo cuối: artifacts/annual-2028-20261125_034252/report.json. CSDL tái k
 | D | Đạt các flow đã test | FRESH/RESUME DB, snapshot/runtime compatibility, worker, cancel, SSE, revision |
 | E | Đạt REPAIR một tháng | Full-code R1–R8; khóa/thời gian/phạm vi; ADMIN/công vượt; đối chiếu độc lập |
 | F | Đạt rolling planning và kiểm tra biên | 12 tháng CP-SAT thật; chưa backtrack hoặc chứng minh tối ưu cả năm |
-| G | **Chưa có Solver REPAIR liên kết nhiều tháng** | Từ chối rõ trường hợp xuyên tháng/cần sửa tháng kế tiếp; không lưu một phần |
+| G | Đạt luồng sửa liên kết đã kiểm thử | Mở vùng về tháng sau, bảo vệ frontier, R1 có scope/chứng nhận, lưu và duyệt nguyên gói; chưa hỗ trợ đổi giờ loại ca giữa các tháng hoặc đi qua tháng trống |
 | H | Đạt API đã test | OpenAPI, Pydantic, xung đột, nguồn localhost, dữ liệu thật |
 | I | Build/component PASS, **chưa nghiệm thu trực quan** | Computer Use dừng vì không xác minh được URL Windows |
 | J | API/worker/Excel/benchmark PASS, **chưa hoàn tất browser E2E** | Giới hạn browser và Excel desktop ghi rõ |

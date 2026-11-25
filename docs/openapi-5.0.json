@@ -903,6 +903,53 @@
         }
       }
     },
+    "/api/jobs/{job_id}/confirm": {
+      "post": {
+        "summary": "Confirm Linked",
+        "operationId": "confirm_linked_api_jobs__job_id__confirm_post",
+        "parameters": [
+          {
+            "name": "job_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Job Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ConfirmInput"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/jobs/{job_id}/events": {
       "get": {
         "summary": "Events",
@@ -1981,6 +2028,18 @@
             "type": "array",
             "title": "Disabled Layers",
             "default": []
+          },
+          "cascade": {
+            "type": "boolean",
+            "title": "Cascade",
+            "default": false
+          },
+          "cascade_months": {
+            "type": "integer",
+            "maximum": 24.0,
+            "minimum": 0.0,
+            "title": "Cascade Months",
+            "default": 12
           }
         },
         "additionalProperties": false,
